@@ -1,0 +1,41 @@
+{
+  "name": "@app/root",
+  "private": true,
+  "scripts": {
+    "dev": "turbo run dev --log-prefix=none",
+    "build": "turbo run build",
+    "start": "pnpm --filter @app/web start",
+    "lint": "ultracite check",
+    "lint:fix": "ultracite fix",
+    "typecheck": "turbo run typecheck",
+    "format": "biome format --write .",
+    "db:generate": "turbo run db:generate",
+    "db:migrate": "turbo run db:migrate",
+    "infra:up": "docker compose up -d",
+    "infra:down": "docker compose down",
+    "infra:down-v": "docker compose down -v",
+    "setup:local": "./scripts/env-setup.sh",
+    "setup:railway": "./scripts/railway-setup.sh",
+    "setup:context": "./scripts/clone-context.sh",
+    "prepare": "effect-language-service patch"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.5",
+    "@effect/language-service": "^0.63.2",
+    "turbo": "^2.8.14",
+    "typescript": "catalog:",
+    "ultracite": "7.2.5"
+  },
+  "packageManager": "pnpm@10.6.5",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "lightningcss"
+    ],
+    "peerDependencyRules": {
+      "allowedVersions": {
+        "zod": ">=3"
+      }
+    }
+  }
+}

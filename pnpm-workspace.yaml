@@ -1,0 +1,35 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+catalogs:
+  default:
+    # Effect ecosystem — ALL must be from compatible v3 releases
+    effect: "^3.19.19"
+    "@effect/platform": "^0.94.5"
+    "@effect/platform-node": "^0.104.1"
+    "@effect/experimental": "^0.58.0"
+    "@effect/rpc": "^0.73.2"
+    "@effect/sql": "^0.49.0"
+    "@effect/sql-pg": "^0.50.3"
+    "@effect/sql-drizzle": "^0.48.1"
+    # Effect Atom — reactive state for Effect
+    "@effect-atom/atom": "^0.5.3"
+    "@effect-atom/atom-react": "^0.5.0"
+    # Everything else
+    typescript: "^5.9.3"
+    react: "^19.2.4"
+    react-dom: "^19.2.4"
+    drizzle-orm: "^0.45.1"
+    drizzle-kit: "^0.31.9"
+    better-auth: "^1.5.4"
+    "@dodopayments/better-auth": "^1.4.3"
+    resend: "^4.5.2"
+    "@react-email/components": "^1.0.8"
+    ai: "^4.3.16"
+    "@ai-sdk/anthropic": "^1.2.12"
+    posthog-js: "^1.359.1"
+    posthog-node: "^4.11.1"
+    tailwindcss: "^4.2.1"
+    "@t3-oss/env-core": "^0.13.10"
+    zod: "^4.3.6"

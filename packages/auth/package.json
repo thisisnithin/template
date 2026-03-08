@@ -1,0 +1,25 @@
+{
+  "name": "@app/auth",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "ultracite check",
+    "lint:fix": "ultracite fix"
+  },
+  "dependencies": {
+    "better-auth": "catalog:",
+    "@dodopayments/better-auth": "catalog:",
+    "dodopayments": "^2.23.2",
+    "drizzle-orm": "catalog:",
+    "@app/db": "workspace:*",
+    "@app/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
+  }
+}
