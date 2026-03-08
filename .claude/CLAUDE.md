@@ -52,6 +52,7 @@ Cross-package imports: `@app/*` workspace aliases, never relative paths.
 - **File naming** — `<name>.<type>.ts`: `health.route.ts`, `user.service.ts`, `health.atom.ts`
 - **Domain structure in `packages/server`** — co-locate by domain under `domains/<name>/`: `<name>.route.ts`, `<name>.errors.ts`, `<name>.service.ts` (add service when logic is reused or grows complex). `errors.ts` at root = shared HTTP errors only (401, 500)
 - **Domain-first errors** — always define typed `Schema.TaggedError` in `<domain>.errors.ts` with relevant context fields. Never use generic errors (`NotFoundError`, `InternalError`) for domain failures — those are last-resort fallbacks only
+- **`ApiError` tagging** — errors meant to be communicated to and handled on the frontend must have `readonly [ApiError] = true as const` (import `ApiError` from `../../errors`) and must be added via `.addError()` on the endpoint in the group file. Unexpected/programmer errors that should never occur in normal flow must NOT have this tag and must NOT be declared in the group — `catchRest` will convert them to `InternalError`
 - **`Schema.TaggedError` is directly yieldable** — `yield* new MyError({ field })`, never `yield* Effect.fail(...)`
 
 ## Railway

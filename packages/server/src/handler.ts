@@ -4,10 +4,9 @@ import { HttpApiBuilder } from "@effect/platform";
 import { NodeHttpServer } from "@effect/platform-node";
 import { Layer } from "effect";
 import { AppApi } from "./api";
-import { AuthMiddlewareLayer } from "./middleware/auth.middleware.layer";
-
 import { HealthRoute } from "./domains/health/health.route";
 import { ProfileRoute } from "./domains/profile/profile.route";
+import { AuthMiddlewareLayer } from "./middleware/auth.middleware.layer";
 
 const Base = Layer.mergeAll(
   Db.Default,
@@ -26,6 +25,4 @@ const Api = HttpApiBuilder.api(AppApi).pipe(
   Layer.provideMerge(Base)
 );
 
-const { handler } = HttpApiBuilder.toWebHandler(Api);
-
-export { handler };
+export const { handler } = HttpApiBuilder.toWebHandler(Api);

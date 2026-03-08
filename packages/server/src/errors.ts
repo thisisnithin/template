@@ -10,16 +10,6 @@ export const isNotApiError = <E>(
   error: E
 ): error is Exclude<E, { readonly [ApiError]: true }> => !isApiError(error);
 
-export class NotFoundError extends Schema.TaggedError<NotFoundError>()(
-  "NotFoundError",
-  {
-    message: Schema.String,
-  },
-  HttpApiSchema.annotations({ status: 404 })
-) {
-  readonly [ApiError] = true as const;
-}
-
 export class UnauthorizedError extends Schema.TaggedError<UnauthorizedError>()(
   "UnauthorizedError",
   {

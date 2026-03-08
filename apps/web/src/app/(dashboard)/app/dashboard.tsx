@@ -2,6 +2,7 @@
 
 import { Result } from "@effect-atom/atom";
 import { useAtomValue } from "@effect-atom/atom-react";
+import { useRouter } from "next/navigation";
 import { healthAtom } from "@/atoms/health.atom";
 import { profileAtom } from "@/atoms/profile.atom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -17,7 +18,6 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { authClient } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
 
 function HealthStatus() {
   const result = useAtomValue(healthAtom);
@@ -80,9 +80,11 @@ export function Dashboard() {
         <CardHeader className="flex flex-row items-start justify-between">
           <div>
             <CardTitle>Dashboard</CardTitle>
-            <CardDescription>Welcome back, {session?.user.name}</CardDescription>
+            <CardDescription>
+              Welcome back, {session?.user.name}
+            </CardDescription>
           </div>
-          <Button variant="outline" size="sm" onClick={handleLogout}>
+          <Button onClick={handleLogout} size="sm" variant="outline">
             Logout
           </Button>
         </CardHeader>
