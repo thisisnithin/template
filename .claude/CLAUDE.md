@@ -54,6 +54,7 @@ Cross-package imports: `@app/*` workspace aliases, never relative paths.
 - **Domain-first errors** — always define typed `Schema.TaggedError` in `<domain>.errors.ts` with relevant context fields. Never use generic errors (`NotFoundError`, `InternalError`) for domain failures — those are last-resort fallbacks only
 - **`ApiError` tagging** — errors meant to be communicated to and handled on the frontend must have `readonly [ApiError] = true as const` (import `ApiError` from `../../errors`), must use `HttpApiSchema.annotations({ status })`, and must be added via `.addError()` on the endpoint in the group file. Unexpected/programmer errors that should never occur in normal flow must NOT have this tag, must NOT use `HttpApiSchema.annotations`, and must NOT be declared in the group — `catchRest` will convert them to `InternalError`
 - **`Schema.TaggedError` is directly yieldable** — `yield* new MyError({ field })`, never `yield* Effect.fail(...)`
+- **Error tag naming** — prefix `Schema.TaggedError` tags with `@<scope>/`: domain errors use `@<domain>/ErrorName` (e.g. `@profile/ProfileNotFoundError`), non-domain errors use `@<package>/ErrorName` (e.g. `@server/UnauthorizedError`)
 
 ## Railway
 - `railway.json` — build/deploy config. `scripts/railway-setup.sh` — provisions Postgres + env vars

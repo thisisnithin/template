@@ -11,7 +11,7 @@ export const isNotApiError = <E>(
 ): error is Exclude<E, { readonly [ApiError]: true }> => !isApiError(error);
 
 export class UnauthorizedError extends Schema.TaggedError<UnauthorizedError>()(
-  "UnauthorizedError",
+  "@server/UnauthorizedError",
   {
     message: Schema.propertySignature(Schema.String).pipe(
       Schema.withConstructorDefault(() => "Unauthorized")
@@ -23,7 +23,7 @@ export class UnauthorizedError extends Schema.TaggedError<UnauthorizedError>()(
 }
 
 export class InternalError extends Schema.TaggedError<InternalError>()(
-  "InternalError",
+  "@server/InternalError",
   {
     message: Schema.propertySignature(Schema.String).pipe(
       Schema.withConstructorDefault(() => "An unexpected error occurred")

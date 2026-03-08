@@ -44,7 +44,3 @@ export function captureEvent(
   }
   posthog.capture(event, properties);
 }
-
-export function getPostHog() {
-  return posthog;
-}

@@ -1,7 +1,7 @@
 import { Schema } from "effect";
 
 export class ProfileNotFoundError extends Schema.TaggedError<ProfileNotFoundError>()(
-  "ProfileNotFoundError",
+  "@profile/ProfileNotFoundError",
   { userId: Schema.String }
 ) {
   get message() {
