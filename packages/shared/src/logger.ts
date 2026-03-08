@@ -1,5 +1,5 @@
+import * as Sentry from "@sentry/nextjs";
 import { Cause, HashMap, Layer, Logger, type LogLevel } from "effect";
-import { PostHog } from "posthog-node";
 import { env } from "./env";
 
 const levelToLabel = (label: LogLevel.LogLevel["label"]) => {
@@ -34,39 +34,47 @@ const RailwayJsonLogger = Logger.replace(
   )
 );
 
-const PostHogLogger = (client: PostHog) =>
-  Logger.make(({ logLevel, cause, message, annotations }) => {
+const SentryLogger = Logger.make(
+  ({ logLevel, cause, message, annotations }) => {
     if (logLevel._tag !== "Error" && logLevel._tag !== "Fatal") {
       return;
     }
+
+    const messageText = String(message);
+
+    const sentryLevel =
+      logLevel._tag === "Fatal" ? ("fatal" as const) : ("error" as const);
 
     const parsedAnnotations: Record<string, string> = {};
     HashMap.forEach(annotations, (value, key) => {
       parsedAnnotations[key] = String(value);
     });
-    const { userId, ...properties } = parsedAnnotations;
+    const { userId, userEmail, ...tags } = parsedAnnotations;
+    const user =
+      userId || userEmail ? { id: userId, email: userEmail } : undefined;
 
-    const error = Cause.isEmpty(cause) ? String(message) : Cause.squash(cause);
+    if (Cause.isEmpty(cause)) {
+      Sentry.captureMessage(messageText, { level: sentryLevel, user, tags });
+      return;
+    }
 
-    client.captureException(error, userId, {
-      ...properties,
-      message: String(message),
-      cause: Cause.pretty(cause, { renderErrorCause: true }),
+    Sentry.captureException(Cause.squash(cause), {
+      level: sentryLevel,
+      user,
+      tags,
+      extra: {
+        message: messageText,
+        cause: Cause.pretty(cause, { renderErrorCause: true }),
+      },
     });
-  });
+  }
+);
 
 const baseLogger =
   process.env.NODE_ENV === "production" ? RailwayJsonLogger : Logger.pretty;
 
-export const LoggerLayer = env.NEXT_PUBLIC_POSTHOG_KEY
-  ? Layer.merge(
-      baseLogger,
-      Logger.add(
-        PostHogLogger(
-          new PostHog(env.NEXT_PUBLIC_POSTHOG_KEY, {
-            host: env.NEXT_PUBLIC_POSTHOG_HOST,
-          })
-        )
-      )
-    )
-  : baseLogger;
+const withSentry = env.NEXT_PUBLIC_SENTRY_DSN
+  ? Logger.add(SentryLogger)
+  : Layer.empty;
+
+export const LoggerLayer = Layer.mergeAll(baseLogger, withSentry);

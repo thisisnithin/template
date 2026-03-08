@@ -13,6 +13,7 @@ catalogs:
     "@effect/sql": "^0.49.0"
     "@effect/sql-pg": "^0.50.3"
     "@effect/sql-drizzle": "^0.48.1"
+    "@effect/opentelemetry": "^0.61.0"
     # Effect Atom — reactive state for Effect
     "@effect-atom/atom": "^0.5.3"
     "@effect-atom/atom-react": "^0.5.0"

@@ -55,6 +55,7 @@ Cross-package imports: `@app/*` workspace aliases, never relative paths.
 - **`ApiError` tagging** — errors meant to be communicated to and handled on the frontend must have `readonly [ApiError] = true as const` (import `ApiError` from `../../errors`), must use `HttpApiSchema.annotations({ status })`, and must be added via `.addError()` on the endpoint in the group file. Unexpected/programmer errors that should never occur in normal flow must NOT have this tag, must NOT use `HttpApiSchema.annotations`, and must NOT be declared in the group — `catchRest` will convert them to `InternalError`
 - **`Schema.TaggedError` is directly yieldable** — `yield* new MyError({ field })`, never `yield* Effect.fail(...)`
 - **Error tag naming** — prefix `Schema.TaggedError` tags with `@<scope>/`: domain errors use `@<domain>/ErrorName` (e.g. `@profile/ProfileNotFoundError`), non-domain errors use `@<package>/ErrorName` (e.g. `@server/UnauthorizedError`)
+- **Always use `Effect.fn("spanName")()`** — every route handler, service method, and utility must use `Effect.fn("name")()` with a span name for tracing. `HttpApiBuilder.handle` does NOT auto-attach spans. Naming: routes `"<domain>.<action>"`, services `"ServiceName.methodName"`, middleware uses `.pipe(Effect.withSpan("middleware.<name>"))`
 
 ## Testing (TDD)
 - `pnpm test` / `pnpm test:watch` / `pnpm test:verbose`

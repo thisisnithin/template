@@ -7,12 +7,14 @@ import { AppApi } from "./api";
 import { HealthRoute } from "./domains/health/health.route";
 import { ProfileRoute } from "./domains/profile/profile.route";
 import { AuthMiddlewareLayer } from "./middleware/auth.middleware.layer";
+import { TracingLayer } from "./tracing";
 
 const Base = Layer.mergeAll(
   Db.Default,
   PgLayer,
   NodeHttpServer.layerContext,
-  LoggerLayer
+  LoggerLayer,
+  TracingLayer
 );
 
 const Routes = Layer.mergeAll(HealthRoute, ProfileRoute);

@@ -20,6 +20,7 @@
     "@effect/experimental": "catalog:",
     "@effect/platform": "catalog:",
     "@effect/rpc": "catalog:",
+    "@sentry/nextjs": "^10",
     "@tanstack/react-form": "^1.28.4",
     "better-auth": "catalog:",
     "class-variance-authority": "^0.7.1",

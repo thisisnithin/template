@@ -18,7 +18,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { authClient } from "@/lib/auth-client";
-import { resetUser } from "@/lib/posthog";
+import { resetUser } from "@/lib/tracking";
 
 function HealthStatus() {
   const result = useAtomValue(healthAtom);

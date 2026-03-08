@@ -1,4 +1,4 @@
-import posthog from "posthog-js";
+import * as Sentry from "@sentry/nextjs";
 import type { ErrorInfo, ReactNode } from "react";
 import { Component } from "react";
 
@@ -22,8 +22,8 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    posthog.captureException(error, {
-      componentStack: errorInfo.componentStack,
+    Sentry.captureException(error, {
+      extra: { componentStack: errorInfo.componentStack },
     });
   }
 

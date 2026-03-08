@@ -35,5 +35,5 @@ export const AuthMiddlewareLayer = Layer.succeed(
       name: session.user.name,
       image: session.user.image ?? null,
     });
-  })
+  }).pipe(Effect.withSpan("middleware.auth"))
 );

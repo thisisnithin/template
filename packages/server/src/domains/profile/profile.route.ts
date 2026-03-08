@@ -14,7 +14,7 @@ export const ProfileRoute = HttpApiBuilder.group(
   (handlers) =>
     handlers.handle(
       "getProfile",
-      Effect.fn(function* () {
+      Effect.fn("profile.getProfile")(function* () {
         const currentUser = yield* CurrentUser;
         const db = yield* Db;
         const [row] = yield* db

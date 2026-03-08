@@ -15,6 +15,7 @@
     "@app/auth": "workspace:*",
     "@app/db": "workspace:*",
     "@app/shared": "workspace:*",
+    "@effect/opentelemetry": "catalog:",
     "@effect/platform": "catalog:",
     "@effect/platform-node": "catalog:",
     "drizzle-orm": "catalog:",

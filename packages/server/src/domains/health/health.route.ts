@@ -6,7 +6,7 @@ import { catchRest } from "../../catch";
 export const HealthRoute = HttpApiBuilder.group(AppApi, "health", (handlers) =>
   handlers.handle(
     "check",
-    Effect.fn(function* () {
+    Effect.fn("health.check")(function* () {
       return yield* Effect.succeed({ status: "ok" });
     }, catchRest)
   )

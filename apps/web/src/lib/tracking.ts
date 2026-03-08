@@ -1,22 +1,6 @@
 import { env } from "@app/shared/env";
 import posthog from "posthog-js";
 
-export function initPostHog() {
-  if (typeof window === "undefined" || !env.NEXT_PUBLIC_POSTHOG_KEY) {
-    return;
-  }
-
-  posthog.init(env.NEXT_PUBLIC_POSTHOG_KEY, {
-    api_host: env.NEXT_PUBLIC_POSTHOG_HOST,
-    defaults: "2026-01-30",
-    loaded: (ph) => {
-      if (process.env.NODE_ENV === "development") {
-        ph.debug();
-      }
-    },
-  });
-}
-
 export function identifyUser(user: {
   id: string;
   email: string;

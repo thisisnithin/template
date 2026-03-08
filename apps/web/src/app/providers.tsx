@@ -7,14 +7,10 @@ import { PostHogProvider } from "posthog-js/react";
 import { useEffect } from "react";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { authClient } from "@/lib/auth-client";
-import { identifyUser, initPostHog } from "@/lib/posthog";
+import { identifyUser } from "@/lib/tracking";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const { data: session } = authClient.useSession();
-
-  useEffect(() => {
-    initPostHog();
-  }, []);
 
   useEffect(() => {
     if (session?.user) {
