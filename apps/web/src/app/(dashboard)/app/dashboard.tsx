@@ -6,6 +6,7 @@ import { healthAtom } from "@/atoms/health.atom";
 import { profileAtom } from "@/atoms/profile.atom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -16,6 +17,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 function HealthStatus() {
   const result = useAtomValue(healthAtom);
@@ -57,6 +59,12 @@ function ProfileInfo() {
 
 export function Dashboard() {
   const { data: session, isPending } = authClient.useSession();
+  const router = useRouter();
+
+  async function handleLogout() {
+    await authClient.signOut();
+    router.push("/");
+  }
 
   if (isPending) {
     return (
@@ -69,9 +77,14 @@ export function Dashboard() {
   return (
     <div className="flex h-screen items-center justify-center">
       <Card className="w-full max-w-lg">
-        <CardHeader>
-          <CardTitle>Dashboard</CardTitle>
-          <CardDescription>Welcome back, {session?.user.name}</CardDescription>
+        <CardHeader className="flex flex-row items-start justify-between">
+          <div>
+            <CardTitle>Dashboard</CardTitle>
+            <CardDescription>Welcome back, {session?.user.name}</CardDescription>
+          </div>
+          <Button variant="outline" size="sm" onClick={handleLogout}>
+            Logout
+          </Button>
         </CardHeader>
         <Separator />
         <CardContent className="flex flex-col gap-4">
