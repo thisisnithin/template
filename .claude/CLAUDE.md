@@ -6,7 +6,7 @@
 - `packages/shared` — multi-package only: env validation (t3-env), shared schemas
 - `packages/db` — Drizzle ORM + @effect/sql-pg layers
 - `packages/email` — React Email base template
-- `packages/server` — Effect HTTP server: domains, middleware, handler → Next.js
+- `packages/server` — Effect RPC server: domains, middleware, handler → Next.js
 
 Cross-package imports: `@app/*` workspace aliases, never relative paths.
 
@@ -18,16 +18,17 @@ Cross-package imports: `@app/*` workspace aliases, never relative paths.
 
 ## Effect (v3)
 - Services: `Effect.Service<Self>()("Name", { effect, dependencies })` — `Context.Tag` for lightweight tags
-- HTTP API: `HttpApi` + `HttpApiGroup` + `HttpApiEndpoint` (declare) → `HttpApiBuilder` (implement) → `HttpApiBuilder.toWebHandler()` (mount)
-- Errors: `Schema.TaggedError` with `HttpApiSchema.annotations({ status })` — yieldable directly: `yield* new MyError({ field })`
+- RPC API: `Rpc.make()` + `RpcGroup.make()` (declare) → `.toLayer()` (implement) → `RpcServer.toWebHandler()` (mount)
+- Errors: `Schema.TaggedError` — yieldable directly: `yield* new MyError({ field })`
 - Workflows: `@effect/experimental` cluster + `SqlMessageStorage`
-- Client state: `AtomHttpApi` from `@effect-atom/atom`
+- Client state: `AtomRpc` from `@effect-atom/atom`
 - Secrets: `Redacted.make()`
 
 **Prime references** (consult before guessing):
 - `.context/effect/` — Effect source
-- `.context/effect-atom/` — AtomHttpApi
+- `.context/effect-atom/` — AtomRpc / AtomHttpApi
 - `.context/accountability/` — canonical example app for architecture + patterns
+- WunderGraph Hub (`/Users/nithinkumarb/Work/WunderGraph/hub/apps/backend`) — production RPC patterns
 
 ## Other Stack
 - **DB**: Drizzle ORM + @effect/sql-drizzle.
@@ -46,24 +47,26 @@ Cross-package imports: `@app/*` workspace aliases, never relative paths.
 - **Error logging** — Always do `Effect.logError('Failed to X', Cause.fail(error))`. Same for `logFatal`. Cause needs to be 2nd param if applicable.
 - **No try-catch** — use `Effect.try`, `Effect.catchTag`, `Effect.catchAll`, etc.
 - **Biome only** — no ESLint/Prettier. Run `pnpm lint:fix` before committing
-- **Layer naming** — no `Live` suffix: `Base`, `Routes`, `ApiLayer`
+- **Layer naming** — no `Live` suffix: `Base`, `Handlers`, `RpcLayer`
 - **Client env vars** — `NEXT_PUBLIC_*` prefix
 - **Verify after changes** — `pnpm typecheck` + `pnpm lint`
-- **File naming** — `<name>.<type>.ts`: `health.route.ts`, `user.service.ts`, `health.atom.ts`
-- **Domain structure in `packages/server`** — co-locate by domain under `domains/<name>/`: `<name>.route.ts`, `<name>.errors.ts`, `<name>.service.ts` (add service when logic is reused or grows complex). `errors.ts` at root = shared HTTP errors only (401, 500)
+- **File naming** — `<name>.<type>.ts`: `health.rpc.ts`, `health.handler.ts`, `user.service.ts`, `health.atom.ts`
+- **Domain structure in `packages/server`** — co-locate by domain under `domains/<name>/`: `<name>.rpc.ts` (RPC definitions + router), `<name>.handler.ts` (implementations), `<name>.errors.ts`, `<name>.service.ts` (add service when logic is reused or grows complex). `errors.ts` at root = shared RPC errors only (401, 500)
+- **RPC naming** — prefix RPC tags with `<domain>.`: `Rpc.make("check")` → `HealthRpcs.prefix("health.")` → tag becomes `"health.check"`
 - **Domain-first errors** — always define typed `Schema.TaggedError` in `<domain>.errors.ts` with relevant context fields. Never use generic errors (`NotFoundError`, `InternalError`) for domain failures — those are last-resort fallbacks only
-- **`ApiError` tagging** — errors meant to be communicated to and handled on the frontend must have `readonly [ApiError] = true as const` (import `ApiError` from `../../errors`), must use `HttpApiSchema.annotations({ status })`, and must be added via `.addError()` on the endpoint in the group file. Unexpected/programmer errors that should never occur in normal flow must NOT have this tag, must NOT use `HttpApiSchema.annotations`, and must NOT be declared in the group — `catchRest` will convert them to `InternalError`
+- **`RpcError` tagging** — errors meant to be communicated to and handled on the frontend must have `readonly [RpcError] = true as const` (import `RpcError` from `../../errors`), and must be added to the `error` field of `Rpc.make()`. Unexpected/programmer errors that should never occur in normal flow must NOT have this tag and must NOT be declared on the RPC — `catchRest` will convert them to `InternalError`
 - **`Schema.TaggedError` is directly yieldable** — `yield* new MyError({ field })`, never `yield* Effect.fail(...)`
 - **Error tag naming** — prefix `Schema.TaggedError` tags with `@<scope>/`: domain errors use `@<domain>/ErrorName` (e.g. `@profile/ProfileNotFoundError`), non-domain errors use `@<package>/ErrorName` (e.g. `@server/UnauthorizedError`)
-- **Always use `Effect.fn("spanName")()`** — every route handler, service method, and utility must use `Effect.fn("name")()` with a span name for tracing. `HttpApiBuilder.handle` does NOT auto-attach spans. Naming: routes `"<domain>.<action>"`, services `"ServiceName.methodName"`, middleware uses `.pipe(Effect.withSpan("middleware.<name>"))`
+- **Use `Effect.fnUntraced`** — RPC auto-attaches spans, so handlers use `Effect.fnUntraced(function* () { ... }, catchRest)`. Service methods and middleware still use `Effect.fn("spanName")()` or `.pipe(Effect.withSpan("middleware.<name>"))`
+- **RPC middleware** — use `RpcMiddleware.Tag` with `wrap: true` pattern. Middleware provides context via `Effect.provideService()` on `next`
 
 ## Testing (TDD)
 - `pnpm test` / `pnpm test:watch` / `pnpm test:verbose`
 - Vitest + `@effect/vitest` + `@testcontainers/postgresql` (Docker required)
 - Testcontainer started once in `vitest.global-setup.ts`, shared via `inject("dbUrl")`
-- Test utilities in `packages/server/src/test/utils.ts`: `HttpLive` (full API layer), `MockAuthMiddlewareLayer`, `SharedPgClientLive`, `mockUser`
-- Co-located tests: `<name>.route.test.ts` next to `<name>.route.ts`
-- Use `it.layer(HttpLive)` for scoped tests, `HttpApiClient.make(AppApi)` for type-safe requests
+- Test utilities in `packages/server/src/test/utils.ts`: `RpcLive` (full RPC layer), `MockAuthMiddlewareLayer`, `SharedPgClientLive`, `mockUser`
+- Co-located tests: `<name>.handler.test.ts` next to `<name>.handler.ts`
+- Use `it.layer(RpcLive)` for scoped tests, `RpcClient.make(AppRouter)` inside `Effect.scoped()` for type-safe requests
 - **TDD workflow**: write test (red) → implement (green) → refactor. Always run `pnpm test` after changes
 
 ## Railway

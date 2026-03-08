@@ -1,4 +1,4 @@
-import { HttpApiMiddleware } from "@effect/platform";
+import { RpcMiddleware } from "@effect/rpc";
 import { Context } from "effect";
 import { UnauthorizedError } from "../errors";
 
@@ -12,10 +12,11 @@ export class CurrentUser extends Context.Tag("CurrentUser")<
   }
 >() {}
 
-export class AuthMiddleware extends HttpApiMiddleware.Tag<AuthMiddleware>()(
+export class AuthMiddleware extends RpcMiddleware.Tag<AuthMiddleware>()(
   "AuthMiddleware",
   {
-    failure: UnauthorizedError,
+    wrap: true,
     provides: CurrentUser,
+    failure: UnauthorizedError,
   }
 ) {}

@@ -1,22 +1,19 @@
 import { Db } from "@app/db/client";
 import { user } from "@app/db/schemas/schema";
-import { HttpApiBuilder } from "@effect/platform";
 import { eq } from "drizzle-orm";
 import { Effect } from "effect";
-import { AppApi } from "../../api";
 import { catchRest } from "../../catch";
 import { CurrentUser } from "../../middleware/auth.middleware";
 import { ProfileNotFoundError } from "./profile.errors";
+import { ProfileRpc } from "./profile.rpc";
 
-export const ProfileRoute = HttpApiBuilder.group(
-  AppApi,
-  "profile",
-  (handlers) =>
-    handlers.handle(
-      "getProfile",
-      Effect.fn("profile.getProfile")(function* () {
+export const ProfileHandler = ProfileRpc.toLayer(
+  Effect.gen(function* () {
+    const db = yield* Db;
+
+    return ProfileRpc.of({
+      "profile.getProfile": Effect.fnUntraced(function* () {
         const currentUser = yield* CurrentUser;
-        const db = yield* Db;
         const [row] = yield* db
           .select({
             id: user.id,
@@ -41,6 +38,7 @@ export const ProfileRoute = HttpApiBuilder.group(
           emailVerified: row.emailVerified,
           createdAt: String(row.createdAt),
         };
-      }, catchRest)
-    )
+      }, catchRest),
+    });
+  })
 );

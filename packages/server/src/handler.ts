@@ -1,12 +1,12 @@
 import { Db, PgLayer } from "@app/db/client";
 import { LoggerLayer } from "@app/shared/logger";
-import { HttpApiBuilder } from "@effect/platform";
 import { NodeHttpServer } from "@effect/platform-node";
+import { RpcSerialization, RpcServer } from "@effect/rpc";
 import { Layer } from "effect";
-import { AppApi } from "./api";
-import { HealthRoute } from "./domains/health/health.route";
-import { ProfileRoute } from "./domains/profile/profile.route";
+import { HealthHandler } from "./domains/health/health.handler";
+import { ProfileHandler } from "./domains/profile/profile.handler";
 import { AuthMiddlewareLayer } from "./middleware/auth.middleware.layer";
+import { AppRouter } from "./router";
 import { TracingLayer } from "./tracing";
 
 const Base = Layer.mergeAll(
@@ -17,14 +17,16 @@ const Base = Layer.mergeAll(
   TracingLayer
 );
 
-const Routes = Layer.mergeAll(HealthRoute, ProfileRoute);
+const Handlers = Layer.mergeAll(HealthHandler, ProfileHandler);
 
 const Middleware = Layer.mergeAll(AuthMiddlewareLayer);
 
-const Api = HttpApiBuilder.api(AppApi).pipe(
-  Layer.provide(Routes),
-  Layer.provide(Middleware),
-  Layer.provideMerge(Base)
+const RpcLayer = Layer.mergeAll(
+  Handlers,
+  Middleware,
+  RpcSerialization.layerJson
 );
 
-export const { handler } = HttpApiBuilder.toWebHandler(Api);
+export const { handler } = RpcServer.toWebHandler(AppRouter, {
+  layer: RpcLayer.pipe(Layer.provideMerge(Base)),
+});

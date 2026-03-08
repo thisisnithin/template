@@ -1,13 +1,14 @@
 import { Db } from "@app/db/client";
-import { HttpApiBuilder } from "@effect/platform";
+import { HttpServer } from "@effect/platform";
 import { NodeHttpServer } from "@effect/platform-node";
+import { RpcClient, RpcSerialization, RpcServer } from "@effect/rpc";
 import { PgClient } from "@effect/sql-pg";
 import { type Context, Effect, Layer, Redacted } from "effect";
 import { inject } from "vitest";
-import { AppApi } from "../api";
-import { HealthRoute } from "../domains/health/health.route";
-import { ProfileRoute } from "../domains/profile/profile.route";
+import { HealthHandler } from "../domains/health/health.handler";
+import { ProfileHandler } from "../domains/profile/profile.handler";
 import { AuthMiddleware, CurrentUser } from "../middleware/auth.middleware";
+import { AppRouter } from "../router";
 
 // ---------------------------------------------------------------------------
 // Mock Auth
@@ -22,7 +23,9 @@ export const mockUser: Context.Tag.Service<CurrentUser> = {
 
 export const MockAuthMiddlewareLayer = Layer.succeed(
   AuthMiddleware,
-  Effect.succeed(CurrentUser.of(mockUser))
+  AuthMiddleware.of(({ next }) =>
+    next.pipe(Effect.provideService(CurrentUser, CurrentUser.of(mockUser)))
+  )
 );
 
 // ---------------------------------------------------------------------------
@@ -79,15 +82,30 @@ const TestDb = Db.DefaultWithoutDependencies.pipe(
 // Composite Test Layers
 // ---------------------------------------------------------------------------
 
-const ApiLayer = HttpApiBuilder.api(AppApi).pipe(
-  Layer.provide(Layer.mergeAll(HealthRoute, ProfileRoute)),
-  Layer.provide(MockAuthMiddlewareLayer),
-  Layer.provide(TestDb)
+const Handlers = Layer.mergeAll(HealthHandler, ProfileHandler);
+
+const RpcLayer = Layer.mergeAll(
+  Handlers,
+  MockAuthMiddlewareLayer,
+  RpcSerialization.layerJson
+).pipe(Layer.provide(TestDb));
+
+// Serve RPC over a test HTTP server (provides HttpClient, HttpServer, etc.)
+const TestServer = Layer.scopedDiscard(
+  Effect.gen(function* () {
+    const httpApp = yield* RpcServer.toHttpApp(AppRouter);
+    yield* HttpServer.serveEffect()(httpApp);
+  })
+).pipe(Layer.provide(RpcLayer), Layer.provideMerge(NodeHttpServer.layerTest));
+
+// RPC client protocol — uses HttpClient from TestServer
+const TestRpcProtocol = RpcClient.layerProtocolHttp({ url: "" }).pipe(
+  Layer.provide(RpcSerialization.layerJson)
 );
 
-export const HttpLive = HttpApiBuilder.serve().pipe(
-  Layer.provide(ApiLayer),
-  Layer.provideMerge(NodeHttpServer.layerTest),
+export const RpcLive = TestRpcProtocol.pipe(
+  Layer.provideMerge(TestServer),
+  Layer.provideMerge(RpcSerialization.layerJson),
   Layer.provideMerge(TestDb),
   Layer.fresh
 );
