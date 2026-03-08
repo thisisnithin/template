@@ -20,6 +20,18 @@ export class NotFoundError extends Schema.TaggedError<NotFoundError>()(
   readonly [ApiError] = true as const;
 }
 
+export class UnauthorizedError extends Schema.TaggedError<UnauthorizedError>()(
+  "UnauthorizedError",
+  {
+    message: Schema.propertySignature(Schema.String).pipe(
+      Schema.withConstructorDefault(() => "Unauthorized")
+    ),
+  },
+  HttpApiSchema.annotations({ status: 401 })
+) {
+  readonly [ApiError] = true as const;
+}
+
 export class InternalError extends Schema.TaggedError<InternalError>()(
   "InternalError",
   {

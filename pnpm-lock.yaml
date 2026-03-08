@@ -297,6 +297,9 @@ importers:
 
   packages/server:
     dependencies:
+      '@app/auth':
+        specifier: workspace:*
+        version: link:../auth
       '@app/db':
         specifier: workspace:*
         version: link:../db
@@ -328,6 +331,9 @@ importers:
       effect:
         specifier: 'catalog:'
         version: 3.19.19
+      posthog-node:
+        specifier: ^5.28.0
+        version: 5.28.0
       zod:
         specifier: 'catalog:'
         version: 4.3.6
@@ -4664,6 +4670,15 @@ packages:
 
   posthog-js@1.359.1:
     resolution: {integrity: sha512-Gy/eX02im6ON0zMxfTR61GNk1sjgLT9rVGfBQ5C757/WS4mN3vTUJveQYoX9jr3y0pqPZ57DqCcf6zcw++bpzQ==}
+
+  posthog-node@5.28.0:
+    resolution: {integrity: sha512-EETYV0zA+7BLQmXzY+vGyDMoQK8uHf8f/1utbRjKncI41gPkw+4piGP7l4UT5Luld+4vQpJPOR1q1YrbXm7XjQ==}
+    engines: {node: ^20.20.0 || >=22.22.0}
+    peerDependencies:
+      rxjs: ^7.0.0
+    peerDependenciesMeta:
+      rxjs:
+        optional: true
 
   powershell-utils@0.1.0:
     resolution: {integrity: sha512-dM0jVuXJPsDN6DvRpea484tCUaMiXWjuCn++HGTqUWzGDjv5tZkEZldAJ/UMlqRYGFrD/etByo4/xOuC/snX2A==}
@@ -9575,6 +9590,10 @@ snapshots:
       preact: 10.28.4
       query-selector-shadow-dom: 1.0.1
       web-vitals: 5.1.0
+
+  posthog-node@5.28.0:
+    dependencies:
+      '@posthog/core': 1.23.2
 
   powershell-utils@0.1.0: {}
 

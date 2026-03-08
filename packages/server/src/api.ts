@@ -1,20 +1,19 @@
 import { HttpApi, HttpApiEndpoint, HttpApiGroup } from "@effect/platform";
 import { Schema } from "effect";
-import { InternalError, NotFoundError } from "./errors";
+import { ProfileNotFoundError } from "./domains/profile/profile.errors";
+import { InternalError, UnauthorizedError } from "./errors";
+import { AuthMiddleware } from "./middleware/auth.middleware";
 
 export const HealthGroup = HttpApiGroup.make("health").add(
-  HttpApiEndpoint.get("check", "/health")
-    .addSuccess(
-      Schema.Struct({
-        status: Schema.String,
-      })
-    )
-    .addError(InternalError)
+  HttpApiEndpoint.get("check", "/health").addSuccess(
+    Schema.Struct({
+      status: Schema.String,
+    })
+  )
 );
 
 export const ProfileGroup = HttpApiGroup.make("profile").add(
   HttpApiEndpoint.get("getProfile", "/profile")
-    .setUrlParams(Schema.Struct({ userId: Schema.String }))
     .addSuccess(
       Schema.Struct({
         id: Schema.String,
@@ -25,8 +24,12 @@ export const ProfileGroup = HttpApiGroup.make("profile").add(
         createdAt: Schema.String,
       })
     )
-    .addError(NotFoundError)
-    .addError(InternalError)
+    .addError(ProfileNotFoundError)
+    .middleware(AuthMiddleware)
 );
 
-export const AppApi = HttpApi.make("app").add(HealthGroup).add(ProfileGroup);
+export const AppApi = HttpApi.make("app")
+  .add(HealthGroup)
+  .add(ProfileGroup)
+  .addError(UnauthorizedError)
+  .addError(InternalError);

@@ -3,9 +3,10 @@ import { user } from "@app/db/schemas/schema";
 import { HttpApiBuilder } from "@effect/platform";
 import { eq } from "drizzle-orm";
 import { Effect } from "effect";
-import { AppApi } from "../api";
-import { catchRest } from "../catch";
-import { NotFoundError } from "../errors";
+import { AppApi } from "../../api";
+import { catchRest } from "../../catch";
+import { CurrentUser } from "../../middleware/auth.middleware";
+import { ProfileNotFoundError } from "./profile.errors";
 
 export const ProfileRoute = HttpApiBuilder.group(
   AppApi,
@@ -13,7 +14,8 @@ export const ProfileRoute = HttpApiBuilder.group(
   (handlers) =>
     handlers.handle(
       "getProfile",
-      Effect.fn(function* ({ urlParams }) {
+      Effect.fn(function* () {
+        const currentUser = yield* CurrentUser;
         const db = yield* Db;
         const [row] = yield* db
           .select({
@@ -25,12 +27,10 @@ export const ProfileRoute = HttpApiBuilder.group(
             createdAt: user.createdAt,
           })
           .from(user)
-          .where(eq(user.id, urlParams.userId));
+          .where(eq(user.id, currentUser.id));
 
         if (!row) {
-          return yield* Effect.fail(
-            new NotFoundError({ message: "User not found" })
-          );
+          return yield* new ProfileNotFoundError({ userId: currentUser.id });
         }
 
         return {

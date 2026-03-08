@@ -31,8 +31,8 @@ function HealthStatus() {
   });
 }
 
-function ProfileInfo({ userId }: { userId: string }) {
-  const result = useAtomValue(profileAtom(userId));
+function ProfileInfo() {
+  const result = useAtomValue(profileAtom);
   return Result.match(result, {
     onInitial: () => <Spinner />,
     onSuccess: (r) => (
@@ -75,7 +75,7 @@ export function Dashboard() {
         </CardHeader>
         <Separator />
         <CardContent className="flex flex-col gap-4">
-          {session?.user.id && <ProfileInfo userId={session.user.id} />}
+          {session?.user.id && <ProfileInfo />}
           <CardDescription>
             Server <HealthStatus />
           </CardDescription>

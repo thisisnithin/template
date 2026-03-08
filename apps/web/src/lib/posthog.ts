@@ -7,7 +7,7 @@ export function initPostHog() {
   }
 
   posthog.init(env.NEXT_PUBLIC_POSTHOG_KEY, {
-    api_host: env.NEXT_PUBLIC_POSTHOG_HOST ?? "https://us.i.posthog.com",
+    api_host: env.NEXT_PUBLIC_POSTHOG_HOST,
     defaults: "2026-01-30",
     loaded: (ph) => {
       if (process.env.NODE_ENV === "development") {

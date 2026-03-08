@@ -14,6 +14,7 @@
   "dependencies": {
     "@t3-oss/env-core": "catalog:",
     "effect": "catalog:",
+    "posthog-node": "^5.28.0",
     "zod": "catalog:"
   },
   "devDependencies": {

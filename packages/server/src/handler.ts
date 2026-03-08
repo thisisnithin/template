@@ -4,8 +4,10 @@ import { HttpApiBuilder } from "@effect/platform";
 import { NodeHttpServer } from "@effect/platform-node";
 import { Layer } from "effect";
 import { AppApi } from "./api";
-import { HealthRoute } from "./routes/health.route";
-import { ProfileRoute } from "./routes/profile.route";
+import { AuthMiddlewareLayer } from "./middleware/auth.middleware.layer";
+
+import { HealthRoute } from "./domains/health/health.route";
+import { ProfileRoute } from "./domains/profile/profile.route";
 
 const Base = Layer.mergeAll(
   Db.Default,
@@ -16,11 +18,14 @@ const Base = Layer.mergeAll(
 
 const Routes = Layer.mergeAll(HealthRoute, ProfileRoute);
 
-const Api = Layer.provideMerge(
-  Layer.provide(HttpApiBuilder.api(AppApi), Routes),
-  Base
+const Middleware = Layer.mergeAll(AuthMiddlewareLayer);
+
+const Api = HttpApiBuilder.api(AppApi).pipe(
+  Layer.provide(Routes),
+  Layer.provide(Middleware),
+  Layer.provideMerge(Base)
 );
 
-const { handler, dispose } = HttpApiBuilder.toWebHandler(Api);
+const { handler } = HttpApiBuilder.toWebHandler(Api);
 
-export { dispose, handler };
+export { handler };

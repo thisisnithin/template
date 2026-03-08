@@ -12,6 +12,7 @@
     "lint:fix": "ultracite fix"
   },
   "dependencies": {
+    "@app/auth": "workspace:*",
     "@app/db": "workspace:*",
     "@app/shared": "workspace:*",
     "@effect/platform": "catalog:",
