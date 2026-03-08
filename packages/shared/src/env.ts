@@ -19,6 +19,7 @@ export const env = createEnv({
     NEXT_PUBLIC_POSTHOG_KEY: z.string().optional(),
     NEXT_PUBLIC_POSTHOG_HOST: z.url().default("https://us.i.posthog.com"),
   },
+  skipValidation: !!process.env.SKIP_ENV_VALIDATION,
   emptyStringAsUndefined: true,
   clientPrefix: "NEXT_PUBLIC_",
   runtimeEnv: {

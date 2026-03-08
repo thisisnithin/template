@@ -56,6 +56,15 @@ Cross-package imports: `@app/*` workspace aliases, never relative paths.
 - **`Schema.TaggedError` is directly yieldable** — `yield* new MyError({ field })`, never `yield* Effect.fail(...)`
 - **Error tag naming** — prefix `Schema.TaggedError` tags with `@<scope>/`: domain errors use `@<domain>/ErrorName` (e.g. `@profile/ProfileNotFoundError`), non-domain errors use `@<package>/ErrorName` (e.g. `@server/UnauthorizedError`)
 
+## Testing (TDD)
+- `pnpm test` / `pnpm test:watch` / `pnpm test:verbose`
+- Vitest + `@effect/vitest` + `@testcontainers/postgresql` (Docker required)
+- Testcontainer started once in `vitest.global-setup.ts`, shared via `inject("dbUrl")`
+- Test utilities in `packages/server/src/test/utils.ts`: `HttpLive` (full API layer), `MockAuthMiddlewareLayer`, `SharedPgClientLive`, `mockUser`
+- Co-located tests: `<name>.route.test.ts` next to `<name>.route.ts`
+- Use `it.layer(HttpLive)` for scoped tests, `HttpApiClient.make(AppApi)` for type-safe requests
+- **TDD workflow**: write test (red) → implement (green) → refactor. Always run `pnpm test` after changes
+
 ## Railway
 - `railway.json` — build/deploy config. `scripts/railway-setup.sh` — provisions Postgres + env vars
 - `pnpm railway:setup [project-name]` — one-command setup

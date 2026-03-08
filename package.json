@@ -17,14 +17,23 @@
     "setup:local": "./scripts/env-setup.sh",
     "setup:railway": "./scripts/railway-setup.sh",
     "setup:context": "./scripts/clone-context.sh",
-    "prepare": "effect-language-service patch"
+    "prepare": "effect-language-service patch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:verbose": "VERBOSE=1 vitest run"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.5",
     "@effect/language-service": "^0.63.2",
+    "@effect/sql-drizzle": "catalog:",
+    "@effect/sql-pg": "catalog:",
+    "@effect/vitest": "catalog:",
+    "@testcontainers/postgresql": "catalog:",
+    "drizzle-orm": "catalog:",
     "turbo": "^2.8.14",
     "typescript": "catalog:",
-    "ultracite": "7.2.5"
+    "ultracite": "7.2.5",
+    "vitest": "catalog:"
   },
   "packageManager": "pnpm@10.6.5",
   "pnpm": {
