@@ -60,6 +60,7 @@ Cross-package imports: `@app/*` workspace aliases, never relative paths.
 - **Use `Effect.fnUntraced`** — RPC auto-attaches spans, so handlers use `Effect.fnUntraced(function* () { ... }, catchRest)`. Service methods, middleware, and clients use `Effect.fn("<Domain>.<method>")()` or `.pipe(Effect.withSpan("<Domain>.<method>"))`
 - **RPC middleware** — use `RpcMiddleware.Tag` with `wrap: true` pattern. Middleware provides context via `Effect.provideService()` on `next`
 - **Third-party SDK wrapping** — wrap promise-based clients using the `use` pattern in `<sdk-name>.client.ts` with `Client` suffix on class name. Search for existing `*.client.ts` files for reference
+- **No `React.` namespace** — use named imports: `import { useState, useEffect, type ReactNode, type ComponentProps } from "react"`, never `React.useState`, `React.ReactNode`, etc.
 
 ## Testing (TDD)
 - `pnpm test` / `pnpm test:watch` / `pnpm test:verbose`
