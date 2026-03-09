@@ -14,7 +14,7 @@
   "dependencies": {
     "better-auth": "catalog:",
     "@dodopayments/better-auth": "catalog:",
-    "dodopayments": "^2.23.2",
+    "dodopayments": "catalog:",
     "drizzle-orm": "catalog:",
     "@app/db": "workspace:*",
     "@app/shared": "workspace:*"

@@ -20,6 +20,7 @@
     "@effect/platform-node": "catalog:",
     "@effect/rpc": "catalog:",
     "drizzle-orm": "catalog:",
+    "dodopayments": "catalog:",
     "effect": "catalog:"
   },
   "devDependencies": {

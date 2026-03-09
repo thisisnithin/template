@@ -25,6 +25,7 @@ catalogs:
     drizzle-kit: "^0.31.9"
     better-auth: "^1.5.4"
     "@dodopayments/better-auth": "^1.4.3"
+    dodopayments: "^2.23.2"
     resend: "^4.5.2"
     "@react-email/components": "^1.0.8"
     ai: "^4.3.16"

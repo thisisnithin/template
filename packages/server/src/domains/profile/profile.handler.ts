@@ -3,7 +3,7 @@ import { user } from "@app/db/schemas/schema";
 import { eq } from "drizzle-orm";
 import { Effect } from "effect";
 import { catchRest } from "../../catch";
-import { CurrentUser } from "../../middleware/auth.middleware";
+import { CurrentUser } from "../auth/auth.middleware";
 import { ProfileNotFoundError } from "./profile.errors";
 import { ProfileRpc } from "./profile.rpc";
 

@@ -3,11 +3,13 @@ import { HttpServer } from "@effect/platform";
 import { NodeHttpServer } from "@effect/platform-node";
 import { RpcClient, RpcSerialization, RpcServer } from "@effect/rpc";
 import { PgClient } from "@effect/sql-pg";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { type Context, Effect, Layer, Redacted } from "effect";
 import { inject } from "vitest";
+import { AuthMiddleware, CurrentUser } from "../domains/auth/auth.middleware";
 import { HealthHandler } from "../domains/health/health.handler";
 import { ProfileHandler } from "../domains/profile/profile.handler";
-import { AuthMiddleware, CurrentUser } from "../middleware/auth.middleware";
 import { AppRouter } from "../router";
 
 // ---------------------------------------------------------------------------
@@ -45,8 +47,6 @@ const ensureMigrations = Effect.gen(function* () {
 
   yield* Effect.tryPromise({
     try: async () => {
-      const { migrate } = await import("drizzle-orm/node-postgres/migrator");
-      const { drizzle } = await import("drizzle-orm/node-postgres");
       const db = drizzle(inject("dbUrl"));
       await migrate(db, {
         migrationsFolder: `${process.cwd()}/packages/db/src/migrations`,

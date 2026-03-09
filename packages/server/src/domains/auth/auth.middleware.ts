@@ -1,6 +1,6 @@
 import { RpcMiddleware } from "@effect/rpc";
 import { Context } from "effect";
-import { UnauthorizedError } from "../errors";
+import { UnauthorizedError } from "../../errors";
 
 export class CurrentUser extends Context.Tag("CurrentUser")<
   CurrentUser,

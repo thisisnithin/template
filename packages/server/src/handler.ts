@@ -3,9 +3,10 @@ import { LoggerLayer } from "@app/shared/logger";
 import { NodeHttpServer } from "@effect/platform-node";
 import { RpcSerialization, RpcServer } from "@effect/rpc";
 import { Layer } from "effect";
+import { AuthMiddlewareLayer } from "./domains/auth/auth.middleware.layer";
+import { BetterAuthClient } from "./domains/auth/better-auth.client";
 import { HealthHandler } from "./domains/health/health.handler";
 import { ProfileHandler } from "./domains/profile/profile.handler";
-import { AuthMiddlewareLayer } from "./middleware/auth.middleware.layer";
 import { AppRouter } from "./router";
 import { TracingLayer } from "./tracing";
 
@@ -14,7 +15,8 @@ const Base = Layer.mergeAll(
   PgLayer,
   NodeHttpServer.layerContext,
   LoggerLayer,
-  TracingLayer
+  TracingLayer,
+  BetterAuthClient.Default
 );
 
 const Handlers = Layer.mergeAll(HealthHandler, ProfileHandler);

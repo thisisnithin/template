@@ -50,15 +50,16 @@ Cross-package imports: `@app/*` workspace aliases, never relative paths.
 - **Layer naming** — no `Live` suffix: `Base`, `Handlers`, `RpcLayer`
 - **Client env vars** — `NEXT_PUBLIC_*` prefix
 - **Verify after changes** — `pnpm typecheck` + `pnpm lint`
-- **File naming** — `<name>.<type>.ts`: `health.rpc.ts`, `health.handler.ts`, `user.service.ts`, `health.atom.ts`
-- **Domain structure in `packages/server`** — co-locate by domain under `domains/<name>/`: `<name>.rpc.ts` (RPC definitions + router), `<name>.handler.ts` (implementations), `<name>.errors.ts`, `<name>.service.ts` (add service when logic is reused or grows complex). `errors.ts` at root = shared RPC errors only (401, 500)
+- **File naming** — `<name>.<type>.ts`: `health.rpc.ts`, `health.handler.ts`, `user.service.ts`, `health.atom.ts`. For third-party SDK wrappers use the SDK name: `better-auth.client.ts`, `dodo-payments.client.ts`
+- **Everything is a domain** — all server code lives under `domains/<name>/`. This includes RPC endpoints, services, AND third-party SDK wrappers (e.g. `domains/auth/`, `domains/payments/`). There is no separate `services/` or `clients/` folder. Co-locate by domain: `<name>.rpc.ts` (RPC definitions + router), `<name>.handler.ts` (implementations), `<name>.errors.ts`, `<name>.service.ts` (business logic), `<sdk-name>.client.ts` (third-party SDK wrapper). `errors.ts` at root = shared RPC errors only (401, 500)
 - **RPC naming** — prefix RPC tags with `<domain>.`: `Rpc.make("check")` → `HealthRpcs.prefix("health.")` → tag becomes `"health.check"`
 - **Domain-first errors** — always define typed `Schema.TaggedError` in `<domain>.errors.ts` with relevant context fields. Never use generic errors (`NotFoundError`, `InternalError`) for domain failures — those are last-resort fallbacks only
 - **`RpcError` tagging** — errors meant to be communicated to and handled on the frontend must have `readonly [RpcError] = true as const` (import `RpcError` from `../../errors`), and must be added to the `error` field of `Rpc.make()`. Unexpected/programmer errors that should never occur in normal flow must NOT have this tag and must NOT be declared on the RPC — `catchRest` will convert them to `InternalError`
 - **`Schema.TaggedError` is directly yieldable** — `yield* new MyError({ field })`, never `yield* Effect.fail(...)`
 - **Error tag naming** — prefix `Schema.TaggedError` tags with `@<scope>/`: domain errors use `@<domain>/ErrorName` (e.g. `@profile/ProfileNotFoundError`), non-domain errors use `@<package>/ErrorName` (e.g. `@server/UnauthorizedError`)
-- **Use `Effect.fnUntraced`** — RPC auto-attaches spans, so handlers use `Effect.fnUntraced(function* () { ... }, catchRest)`. Service methods and middleware still use `Effect.fn("spanName")()` or `.pipe(Effect.withSpan("middleware.<name>"))`
+- **Use `Effect.fnUntraced`** — RPC auto-attaches spans, so handlers use `Effect.fnUntraced(function* () { ... }, catchRest)`. Service methods, middleware, and clients use `Effect.fn("<Domain>.<method>")()` or `.pipe(Effect.withSpan("<Domain>.<method>"))`
 - **RPC middleware** — use `RpcMiddleware.Tag` with `wrap: true` pattern. Middleware provides context via `Effect.provideService()` on `next`
+- **Third-party SDK wrapping** — wrap promise-based clients using the `use` pattern in `<sdk-name>.client.ts` with `Client` suffix on class name. Search for existing `*.client.ts` files for reference
 
 ## Testing (TDD)
 - `pnpm test` / `pnpm test:watch` / `pnpm test:verbose`

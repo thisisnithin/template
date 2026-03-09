@@ -54,6 +54,9 @@ catalogs:
     better-auth:
       specifier: ^1.5.4
       version: 1.5.4
+    dodopayments:
+      specifier: ^2.23.2
+      version: 2.23.2
     drizzle-kit:
       specifier: ^0.31.9
       version: 0.31.9
@@ -265,7 +268,7 @@ importers:
         specifier: 'catalog:'
         version: 1.5.4(zpxrv6merfjahuy6gua42fprky)
       dodopayments:
-        specifier: ^2.23.2
+        specifier: 'catalog:'
         version: 2.23.2
       drizzle-orm:
         specifier: 'catalog:'
@@ -354,6 +357,9 @@ importers:
       '@effect/rpc':
         specifier: 'catalog:'
         version: 0.73.2(@effect/platform@0.94.5(effect@3.19.19))(effect@3.19.19)
+      dodopayments:
+        specifier: 'catalog:'
+        version: 2.23.2
       drizzle-orm:
         specifier: 'catalog:'
         version: 0.45.1(@electric-sql/pglite@0.3.15)(@opentelemetry/api@1.9.0)(@prisma/client@7.4.2(prisma@7.4.2(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3))(typescript@5.9.3))(@types/pg@8.18.0)(kysely@0.28.11)(mysql2@3.15.3)(pg@8.20.0)(postgres@3.4.7)(prisma@7.4.2(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3))
