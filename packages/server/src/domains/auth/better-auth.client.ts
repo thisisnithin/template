@@ -1,11 +1,12 @@
-import { type Auth, auth } from "@app/auth";
-import { Cause, Effect } from "effect";
+import type { Auth } from "@app/auth";
+import { auth } from "@app/auth";
+import { Cause, Context, Effect, Layer } from "effect";
 import { BetterAuthError } from "./auth.errors";
 
-export class BetterAuthClient extends Effect.Service<BetterAuthClient>()(
+export class BetterAuthClient extends Context.Service<BetterAuthClient>()(
   "@auth/BetterAuthClient",
   {
-    sync: () => {
+    make: Effect.sync(() => {
       const use = Effect.fn("BetterAuthClient.use")(
         <A>(
           f: (client: Auth) => Promise<A>
@@ -21,6 +22,8 @@ export class BetterAuthClient extends Effect.Service<BetterAuthClient>()(
       );
 
       return { client: auth, use } as const;
-    },
+    }),
   }
-) {}
+) {
+  static readonly layer = Layer.effect(BetterAuthClient, BetterAuthClient.make);
+}

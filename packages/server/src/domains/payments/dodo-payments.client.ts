@@ -1,12 +1,12 @@
 import { env } from "@app/shared/env";
 import DodoPaymentsApi from "dodopayments";
-import { Cause, Effect } from "effect";
+import { Cause, Context, Effect, Layer } from "effect";
 import { DodoPaymentsError } from "./payments.errors";
 
-export class DodoPaymentsClient extends Effect.Service<DodoPaymentsClient>()(
+export class DodoPaymentsClient extends Context.Service<DodoPaymentsClient>()(
   "@payments/DodoPaymentsClient",
   {
-    effect: Effect.gen(function* () {
+    make: Effect.gen(function* () {
       const client = new DodoPaymentsApi({
         bearerToken: env.DODO_PAYMENTS_API_KEY ?? "",
       });
@@ -20,10 +20,7 @@ export class DodoPaymentsClient extends Effect.Service<DodoPaymentsClient>()(
             catch: (cause) => new DodoPaymentsError({ cause }),
           }).pipe(
             Effect.tapError((error) =>
-              Effect.logError(
-                "Failed to call DodoPayments",
-                Cause.fail(error)
-              )
+              Effect.logError("Failed to call DodoPayments", Cause.fail(error))
             )
           )
       );
@@ -31,4 +28,9 @@ export class DodoPaymentsClient extends Effect.Service<DodoPaymentsClient>()(
       return { client, use } as const;
     }),
   }
-) {}
+) {
+  static readonly layer = Layer.effect(
+    DodoPaymentsClient,
+    DodoPaymentsClient.make
+  );
+}

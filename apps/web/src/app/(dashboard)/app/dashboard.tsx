@@ -1,7 +1,7 @@
 "use client";
 
-import { Result } from "@effect-atom/atom";
-import { useAtomValue } from "@effect-atom/atom-react";
+import { useAtomValue } from "@effect/atom-react";
+import { AsyncResult } from "effect/unstable/reactivity";
 import { useRouter } from "next/navigation";
 import { healthAtom } from "@/atoms/health.atom";
 import { profileAtom } from "@/atoms/profile.atom";
@@ -22,7 +22,8 @@ import { resetUser } from "@/lib/tracking";
 
 function HealthStatus() {
   const result = useAtomValue(healthAtom);
-  return Result.match(result, {
+  return AsyncResult.match(result, {
+    onFailure: () => <Badge variant="destructive">offline</Badge>,
     onInitial: () => (
       <Badge variant="outline">
         <Spinner />
@@ -30,13 +31,15 @@ function HealthStatus() {
       </Badge>
     ),
     onSuccess: (r) => <Badge variant="default">{r.value.status}</Badge>,
-    onFailure: () => <Badge variant="destructive">offline</Badge>,
   });
 }
 
 function ProfileInfo() {
   const result = useAtomValue(profileAtom);
-  return Result.match(result, {
+  return AsyncResult.match(result, {
+    onFailure: () => (
+      <p className="text-destructive text-sm">Failed to load profile</p>
+    ),
     onInitial: () => <Spinner />,
     onSuccess: (r) => (
       <div className="flex items-center gap-3">
@@ -51,9 +54,6 @@ function ProfileInfo() {
           <p className="text-muted-foreground text-sm">{r.value.email}</p>
         </div>
       </div>
-    ),
-    onFailure: () => (
-      <p className="text-destructive text-sm">Failed to load profile</p>
     ),
   });
 }

@@ -1,5 +1,5 @@
 import { env } from "@app/shared/env";
-import posthog from "posthog-js";
+import { posthog } from "posthog-js";
 
 export function identifyUser(user: {
   id: string;

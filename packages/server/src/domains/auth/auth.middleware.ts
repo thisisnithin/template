@@ -1,8 +1,8 @@
-import { RpcMiddleware } from "@effect/rpc";
 import { Context } from "effect";
+import { RpcMiddleware } from "effect/unstable/rpc";
 import { UnauthorizedError } from "../../errors";
 
-export class CurrentUser extends Context.Tag("CurrentUser")<
+export class CurrentUser extends Context.Service<
   CurrentUser,
   {
     readonly id: string;
@@ -10,13 +10,9 @@ export class CurrentUser extends Context.Tag("CurrentUser")<
     readonly name: string;
     readonly image: string | null;
   }
->() {}
+>()("@auth/CurrentUser") {}
 
-export class AuthMiddleware extends RpcMiddleware.Tag<AuthMiddleware>()(
-  "AuthMiddleware",
-  {
-    wrap: true,
-    provides: CurrentUser,
-    failure: UnauthorizedError,
-  }
-) {}
+export class AuthMiddleware extends RpcMiddleware.Service<
+  AuthMiddleware,
+  { provides: CurrentUser }
+>()("AuthMiddleware", { error: UnauthorizedError }) {}

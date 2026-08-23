@@ -8,7 +8,7 @@ export const catchRest = <A, E, R>(self: Effect.Effect<A, E, R>) =>
         Effect.andThen(Effect.fail(new InternalError({})))
       )
     ),
-    Effect.catchAllDefect((defect) =>
+    Effect.catchDefect((defect) =>
       Effect.logFatal("Unexpected defect", Cause.fail(defect)).pipe(
         Effect.andThen(Effect.fail(new InternalError({})))
       )

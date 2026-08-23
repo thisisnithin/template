@@ -1,5 +1,5 @@
-import type { Headers } from "@effect/platform";
 import { Effect, Layer } from "effect";
+import type { Headers } from "effect/unstable/http";
 import { UnauthorizedError } from "../../errors";
 import { AuthMiddleware, CurrentUser } from "./auth.middleware";
 import { BetterAuthClient } from "./better-auth.client";
@@ -13,9 +13,7 @@ export const AuthMiddlewareLayer = Layer.effect(
       headers: Headers.Headers
     ) {
       const session = yield* betterAuth
-        .use((client) => {
-          return client.api.getSession({ headers });
-        })
+        .use((client) => client.api.getSession({ headers }))
         .pipe(
           Effect.mapError(
             () =>
@@ -30,14 +28,14 @@ export const AuthMiddlewareLayer = Layer.effect(
       }
 
       return CurrentUser.of({
-        id: session.user.id,
         email: session.user.email,
-        name: session.user.name,
+        id: session.user.id,
         image: session.user.image ?? null,
+        name: session.user.name,
       });
     });
 
-    return AuthMiddleware.of(({ headers, next }) =>
+    return AuthMiddleware.of((next, { headers }) =>
       Effect.gen(function* () {
         const currentUser = yield* getSession(headers).pipe(
           Effect.withSpan("Auth.middleware")
@@ -46,8 +44,8 @@ export const AuthMiddlewareLayer = Layer.effect(
         return yield* next.pipe(
           Effect.provideService(CurrentUser, currentUser),
           Effect.annotateLogs({
-            userId: currentUser.id,
             userEmail: currentUser.email,
+            userId: currentUser.id,
           })
         );
       })

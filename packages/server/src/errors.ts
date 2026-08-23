@@ -1,4 +1,4 @@
-import { Predicate, Schema } from "effect";
+import { Effect, Predicate, Schema } from "effect";
 
 export const RpcError = Symbol.for("@app/server/RpcError");
 
@@ -12,8 +12,8 @@ export const isNotRpcError = <E>(
 export class UnauthorizedError extends Schema.TaggedError<UnauthorizedError>()(
   "@server/UnauthorizedError",
   {
-    message: Schema.propertySignature(Schema.String).pipe(
-      Schema.withConstructorDefault(() => "Unauthorized")
+    message: Schema.String.pipe(
+      Schema.withConstructorDefault(Effect.succeed("Unauthorized"))
     ),
   }
 ) {
@@ -23,8 +23,10 @@ export class UnauthorizedError extends Schema.TaggedError<UnauthorizedError>()(
 export class InternalError extends Schema.TaggedError<InternalError>()(
   "@server/InternalError",
   {
-    message: Schema.propertySignature(Schema.String).pipe(
-      Schema.withConstructorDefault(() => "An unexpected error occurred")
+    message: Schema.String.pipe(
+      Schema.withConstructorDefault(
+        Effect.succeed("An unexpected error occurred")
+      )
     ),
   }
 ) {

@@ -1,10 +1,11 @@
 "use client";
 
-import { RegistryProvider } from "@effect-atom/atom-react";
+import { RegistryProvider } from "@effect/atom-react";
 import { ThemeProvider } from "next-themes";
-import posthog from "posthog-js";
+import { posthog } from "posthog-js";
 import { PostHogProvider } from "posthog-js/react";
-import { type ReactNode, useEffect } from "react";
+import type { ReactNode } from "react";
+import { useEffect } from "react";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { authClient } from "@/lib/auth-client";
 import { identifyUser } from "@/lib/tracking";
@@ -15,8 +16,8 @@ export function Providers({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (session?.user) {
       identifyUser({
-        id: session.user.id,
         email: session.user.email,
+        id: session.user.id,
         name: session.user.name,
       });
     }

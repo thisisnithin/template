@@ -28,12 +28,14 @@ import { Spinner } from "@/components/ui/spinner";
 import { authClient } from "@/lib/auth-client";
 
 const AuthSchema = Schema.Struct({
-  name: Schema.String,
   email: Email,
+  name: Schema.String,
   password: Schema.String.pipe(
-    Schema.minLength(8, {
-      message: () => "Password must be at least 8 characters",
-    })
+    Schema.check(
+      Schema.isMinLength(8, {
+        message: "Password must be at least 8 characters",
+      })
+    )
   ),
 });
 
@@ -46,12 +48,9 @@ export function AuthDialog() {
 
   const form = useForm({
     defaultValues: {
-      name: "",
       email: "",
+      name: "",
       password: "",
-    },
-    validators: {
-      onSubmit: Schema.standardSchemaV1(AuthSchema),
     },
     onSubmit: async ({ value }) => {
       setServerError("");
@@ -59,8 +58,8 @@ export function AuthDialog() {
         if (isSignUp) {
           const result = await authClient.signUp.email({
             email: value.email,
-            password: value.password,
             name: value.name,
+            password: value.password,
           });
           if (result.error) {
             setServerError(result.error.message ?? "Sign up failed");
@@ -77,17 +76,20 @@ export function AuthDialog() {
           }
         }
         setOpen(false);
-        await router.push("/app");
+        router.push("/app");
       } catch {
         setServerError("An unexpected error occurred");
       }
+    },
+    validators: {
+      onSubmit: Schema.toStandardSchemaV1(AuthSchema),
     },
   });
 
   const handleGoogleSignIn = async () => {
     await authClient.signIn.social({
-      provider: "google",
       callbackURL: "/app",
+      provider: "google",
     });
   };
 

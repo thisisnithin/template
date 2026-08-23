@@ -1,11 +1,9 @@
 import { Db } from "@app/db/client";
-import { HttpServer } from "@effect/platform";
 import { NodeHttpServer } from "@effect/platform-node";
-import { RpcClient, RpcSerialization, RpcServer } from "@effect/rpc";
 import { PgClient } from "@effect/sql-pg";
-import { drizzle } from "drizzle-orm/node-postgres";
-import { migrate } from "drizzle-orm/node-postgres/migrator";
-import { type Context, Effect, Layer, Redacted } from "effect";
+import { Effect, Layer, Redacted } from "effect";
+import { HttpServer } from "effect/unstable/http";
+import { RpcClient, RpcSerialization, RpcServer } from "effect/unstable/rpc";
 import { inject } from "vitest";
 import { AuthMiddleware, CurrentUser } from "../domains/auth/auth.middleware";
 import { HealthHandler } from "../domains/health/health.handler";
@@ -16,7 +14,7 @@ import { AppRouter } from "../router";
 // Mock Auth
 // ---------------------------------------------------------------------------
 
-export const mockUser: Context.Tag.Service<CurrentUser> = {
+export const mockUser: CurrentUser["Service"] = {
   id: "test-user-id",
   email: "test@example.com",
   name: "Test User",
@@ -25,7 +23,7 @@ export const mockUser: Context.Tag.Service<CurrentUser> = {
 
 export const MockAuthMiddlewareLayer = Layer.succeed(
   AuthMiddleware,
-  AuthMiddleware.of(({ next }) =>
+  AuthMiddleware.of((next) =>
     next.pipe(Effect.provideService(CurrentUser, CurrentUser.of(mockUser)))
   )
 );
@@ -34,49 +32,15 @@ export const MockAuthMiddlewareLayer = Layer.succeed(
 // Shared Postgres (testcontainer)
 // ---------------------------------------------------------------------------
 
-const BasePgClientLive = PgClient.layer({
+export const SharedPgClientLive = PgClient.layer({
   url: Redacted.make(inject("dbUrl")),
 });
-
-let migrationsRan = false;
-
-const ensureMigrations = Effect.gen(function* () {
-  if (migrationsRan) {
-    return;
-  }
-
-  yield* Effect.tryPromise({
-    try: async () => {
-      const db = drizzle(inject("dbUrl"));
-      await migrate(db, {
-        migrationsFolder: `${process.cwd()}/packages/db/src/migrations`,
-      });
-    },
-    catch: (error) => {
-      const msg = String(error);
-      if (msg.includes("already exists") || msg.includes("duplicate key")) {
-        return;
-      }
-      throw error;
-    },
-  });
-
-  migrationsRan = true;
-});
-
-const MigrationsLayer = Layer.effectDiscard(ensureMigrations);
-
-export const SharedPgClientLive = MigrationsLayer.pipe(
-  Layer.provideMerge(BasePgClientLive)
-);
 
 // ---------------------------------------------------------------------------
 // Test Db (bypasses @app/db/client which imports env)
 // ---------------------------------------------------------------------------
 
-const TestDb = Db.DefaultWithoutDependencies.pipe(
-  Layer.provide(SharedPgClientLive)
-);
+const TestDb = Db.layerNoDeps.pipe(Layer.provide(SharedPgClientLive));
 
 // ---------------------------------------------------------------------------
 // Composite Test Layers
@@ -91,9 +55,9 @@ const RpcLayer = Layer.mergeAll(
 ).pipe(Layer.provide(TestDb));
 
 // Serve RPC over a test HTTP server (provides HttpClient, HttpServer, etc.)
-const TestServer = Layer.scopedDiscard(
+const TestServer = Layer.effectDiscard(
   Effect.gen(function* () {
-    const httpApp = yield* RpcServer.toHttpApp(AppRouter);
+    const httpApp = yield* RpcServer.toHttpEffect(AppRouter);
     yield* HttpServer.serveEffect()(httpApp);
   })
 ).pipe(Layer.provide(RpcLayer), Layer.provideMerge(NodeHttpServer.layerTest));

@@ -2,7 +2,7 @@
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
 import * as Sentry from "@sentry/nextjs";
-import posthog from "posthog-js";
+import { posthog } from "posthog-js";
 
 if (process.env.NEXT_PUBLIC_POSTHOG_KEY) {
   posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
@@ -12,15 +12,15 @@ if (process.env.NEXT_PUBLIC_POSTHOG_KEY) {
 }
 
 Sentry.init({
+  dataCollection: { userInfo: true },
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-  integrations: [Sentry.replayIntegration()],
-  tracePropagationTargets: [process.env.NEXT_PUBLIC_APP_URL ?? ""],
-  tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1.0,
   enableLogs: true,
+  integrations: [Sentry.replayIntegration()],
+  replaysOnErrorSampleRate: 1,
   replaysSessionSampleRate: 0.1,
-  replaysOnErrorSampleRate: 1.0,
-  sendDefaultPii: true,
   spotlight: process.env.NODE_ENV !== "production",
+  tracePropagationTargets: [process.env.NEXT_PUBLIC_APP_URL ?? ""],
+  tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1,
 });
 
 export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;

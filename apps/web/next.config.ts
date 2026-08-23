@@ -1,32 +1,37 @@
+import path from "node:path";
 import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  skipTrailingSlashRedirect: true,
   rewrites() {
     return [
       {
-        source: "/ink/static/:path*",
         destination: "https://us-assets.i.posthog.com/static/:path*",
+        source: "/ink/static/:path*",
       },
       {
-        source: "/ink/:path*",
         destination: "https://us.i.posthog.com/:path*",
+        source: "/ink/:path*",
       },
     ];
+  },
+  skipTrailingSlashRedirect: true,
+  // pnpm hoists `next` above this app, so Turbopack needs the monorepo root.
+  turbopack: {
+    root: path.resolve(import.meta.dirname, "../.."),
   },
 };
 
 export default withSentryConfig(nextConfig, {
+  authToken: process.env.SENTRY_AUTH_TOKEN,
   org: process.env.SENTRY_ORG,
   project: process.env.SENTRY_PROJECT,
-  authToken: process.env.SENTRY_AUTH_TOKEN,
   silent: !process.env.CI,
-  widenClientFileUpload: true,
   tunnelRoute: "/beacon",
   webpack: {
     automaticVercelMonitors: true,
     treeshake: { removeDebugLogging: true },
   },
+  widenClientFileUpload: true,
 });

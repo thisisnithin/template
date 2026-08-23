@@ -16,7 +16,7 @@ export function BaseEmail({ subject, previewText, children }: BaseEmailProps) {
       <Preview>{previewText}</Preview>
       <Body style={{ backgroundColor: "#ffffff", fontFamily: "sans-serif" }}>
         <Container
-          style={{ maxWidth: "600px", margin: "0 auto", padding: "20px" }}
+          style={{ margin: "0 auto", maxWidth: "600px", padding: "20px" }}
         >
           {children}
         </Container>

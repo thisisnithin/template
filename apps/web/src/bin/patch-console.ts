@@ -1,8 +1,9 @@
 import { LoggerLayer } from "@app/shared/logger";
-import { Effect, LogLevel, ManagedRuntime } from "effect";
+import type { LogLevel } from "effect";
+import { Effect, ManagedRuntime } from "effect";
 
 // biome-ignore lint/suspicious/noControlCharactersInRegex: stripping ANSI escapes
-const ANSI_RE = /\u001b\[[0-9;]*m/g;
+const ANSI_RE = /\u001B\[[0-9;]*m/gu;
 let forwarding = false;
 
 const format = (...args: readonly unknown[]) =>
@@ -24,23 +25,23 @@ export function patchConsole() {
   const original = { ...console };
   const runtime = ManagedRuntime.make(LoggerLayer);
 
-  const emit = (level: LogLevel.LogLevel, ...args: readonly unknown[]) => {
+  const emit = (level: LogLevel.Severity, ...args: readonly unknown[]) => {
     if (forwarding || isEffectLog(args)) {
       original.log(...args);
       return;
     }
     forwarding = true;
-    runtime.runSync(Effect.logWithLevel(level, format(...args)));
+    runtime.runSync(Effect.logWithLevel(level)(format(...args)));
     forwarding = false;
   };
 
   for (const [method, level] of [
-    ["log", LogLevel.Info],
-    ["info", LogLevel.Info],
-    ["warn", LogLevel.Warning],
-    ["error", LogLevel.Error],
-    ["debug", LogLevel.Debug],
-  ] as const) {
+    ["log", "Info"],
+    ["info", "Info"],
+    ["warn", "Warn"],
+    ["error", "Error"],
+    ["debug", "Debug"],
+  ] as const satisfies readonly (readonly [string, LogLevel.Severity])[]) {
     console[method] = (...args: readonly unknown[]) => emit(level, ...args);
   }
 }

@@ -7,17 +7,17 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit",
     "lint": "ultracite check",
-    "lint:fix": "ultracite fix"
+    "lint:fix": "ultracite fix",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "better-auth": "catalog:",
-    "@dodopayments/better-auth": "catalog:",
-    "dodopayments": "catalog:",
-    "drizzle-orm": "catalog:",
     "@app/db": "workspace:*",
-    "@app/shared": "workspace:*"
+    "@app/shared": "workspace:*",
+    "@dodopayments/better-auth": "catalog:",
+    "better-auth": "catalog:",
+    "dodopayments": "catalog:",
+    "drizzle-orm": "catalog:"
   },
   "devDependencies": {
     "typescript": "catalog:"

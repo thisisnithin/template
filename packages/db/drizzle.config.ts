@@ -1,9 +1,14 @@
 import { defineConfig } from "drizzle-kit";
 
+// drizzle-kit runs outside the app, so it cannot use @app/shared/env.
+const url = process.env.DATABASE_URL;
+if (!url) {
+  throw new Error("DATABASE_URL is required to run drizzle-kit");
+}
+
 export default defineConfig({
-  schema: "./src/schemas/schema.ts",
-  out: "./src/migrations",
+  dbCredentials: { url },
   dialect: "postgresql",
-  // biome-ignore lint/style/noNonNullAssertion: drizzle-kit CLI requires env var at config time
-  dbCredentials: { url: process.env.DATABASE_URL! },
+  out: "./src/migrations",
+  schema: "./src/schemas/schema.ts",
 });

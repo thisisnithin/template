@@ -1,4 +1,5 @@
 import { makeDrizzle } from "@app/db/client";
+import * as schema from "@app/db/schemas/schema";
 import { env } from "@app/shared/env";
 import { checkout, dodopayments, webhooks } from "@dodopayments/better-auth";
 import { betterAuth } from "better-auth";
@@ -9,18 +10,8 @@ import DodoPayments from "dodopayments";
 const db = makeDrizzle(env.DATABASE_URL);
 
 export const auth = betterAuth({
-  database: drizzleAdapter(db, { provider: "pg" }),
+  database: drizzleAdapter(db, { provider: "pg", schema }),
   emailAndPassword: { enabled: true },
-  socialProviders: {
-    ...(env.GOOGLE_CLIENT_ID
-      ? {
-          google: {
-            clientId: env.GOOGLE_CLIENT_ID,
-            clientSecret: env.GOOGLE_CLIENT_SECRET ?? "",
-          },
-        }
-      : {}),
-  },
   plugins: [
     ...(env.DODO_PAYMENTS_API_KEY
       ? [
@@ -39,6 +30,14 @@ export const auth = betterAuth({
       : []),
     nextCookies(), // must be last
   ],
+  socialProviders: env.GOOGLE_CLIENT_ID
+    ? {
+        google: {
+          clientId: env.GOOGLE_CLIENT_ID,
+          clientSecret: env.GOOGLE_CLIENT_SECRET ?? "",
+        },
+      }
+    : {},
 });
 
 export type Auth = typeof auth;
