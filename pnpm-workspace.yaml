@@ -1,0 +1,39 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+catalogs:
+  default:
+    # Every Effect package shares one version. Bump them together.
+    effect: "4.0.0-rc.111"
+    "@effect/platform-node": "4.0.0-rc.111"
+    "@effect/vitest": "4.0.0-rc.111"
+    # Confect bridges Effect v4 and Convex. Prerelease: pin exactly, bump
+    # all four together, and keep them in step with `effect` above.
+    "@confect/core": "10.0.0-next.17"
+    "@confect/server": "10.0.0-next.17"
+    "@confect/react": "10.0.0-next.17"
+    "@confect/cli": "10.0.0-next.17"
+    convex: "^1.45.0"
+    "@convex-dev/better-auth": "^0.12.5"
+    # Pinned to <1.7: @convex-dev/better-auth peers `>=1.6.11 <1.7.0`.
+    better-auth: "~1.6.30"
+    typescript: "^7.0.2"
+    react: "^19.2.8"
+    react-dom: "^19.2.8"
+    "@dodopayments/better-auth": "^1.6.5"
+    dodopayments: "^2.47.0"
+    "@convex-dev/resend": "^0.2.7"
+    "@react-email/components": "^1.0.12"
+    "@react-email/render": "^2.1.0"
+    ai: "^7.0.77"
+    "@ai-sdk/anthropic": "^4.0.41"
+    posthog-js: "^1.418.10"
+    posthog-node: "^5.50.0"
+    "@posthog/convex": "^2.1.1"
+    tailwindcss: "^4.3.3"
+    "@t3-oss/env-core": "^0.13.11"
+    zod: "^4.4.3"
+    vitest: "^4.1.11"
+    convex-test: "^0.0.56"
+    "@edge-runtime/vm": "^5.0.0"

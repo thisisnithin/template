@@ -1,0 +1,21 @@
+{
+  "name": "@app/shared",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "lint": "ultracite check",
+    "lint:fix": "ultracite fix",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.37",
+    "typescript": "catalog:"
+  }
+}

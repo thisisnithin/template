@@ -1,0 +1,48 @@
+{
+  "name": "@app/backend",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./convex/*": "./convex/*.ts",
+    "./confect/*": "./confect/*.ts"
+  },
+  "scripts": {
+    "codegen": "convex codegen && confect codegen",
+    "deploy": "convex deploy",
+    "dev": "concurrently --names=CONVEX,CONFECT --prefix-colors=\"blue,magenta\" \"convex dev --tail-logs\" \"confect dev\"",
+    "lint": "ultracite check",
+    "lint:fix": "ultracite fix",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit --project tsconfig.json && tsc --noEmit --project convex/tsconfig.json"
+  },
+  "dependencies": {
+    "@app/email": "workspace:*",
+    "@app/shared": "workspace:*",
+    "@confect/core": "catalog:",
+    "@confect/react": "catalog:",
+    "@confect/server": "catalog:",
+    "@convex-dev/better-auth": "catalog:",
+    "@convex-dev/resend": "catalog:",
+    "@dodopayments/better-auth": "catalog:",
+    "@posthog/convex": "catalog:",
+    "@react-email/components": "catalog:",
+    "@react-email/render": "catalog:",
+    "better-auth": "catalog:",
+    "convex": "catalog:",
+    "dodopayments": "catalog:",
+    "effect": "catalog:",
+    "react": "catalog:"
+  },
+  "devDependencies": {
+    "@confect/cli": "catalog:",
+    "@edge-runtime/vm": "catalog:",
+    "@effect/vitest": "catalog:",
+    "@types/node": "^22.20.1",
+    "concurrently": "^10.0.5",
+    "convex-test": "catalog:",
+    "typescript": "catalog:",
+    "vite": "^8.2.1",
+    "vitest": "catalog:"
+  }
+}

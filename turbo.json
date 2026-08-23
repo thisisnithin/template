@@ -1,0 +1,30 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build", "codegen", "^codegen"],
+      "outputs": [".next/**"]
+    },
+    "codegen": {
+      "cache": false,
+      "outputs": ["confect/_generated/**", "convex/**"]
+    },
+    "deploy": {
+      "cache": false,
+      "dependsOn": ["codegen"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {
+      "dependsOn": ["codegen", "^codegen"]
+    },
+    "typecheck": {
+      "dependsOn": ["codegen", "^codegen"]
+    },
+    "test": {
+      "dependsOn": ["codegen", "^codegen"]
+    }
+  }
+}

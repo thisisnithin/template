@@ -1,0 +1,51 @@
+{
+  "name": "@app/root",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "build:vercel": "pnpm --filter @app/backend codegen && pnpm --filter @app/backend exec convex deploy --cmd-url-env-var-name NEXT_PUBLIC_CONVEX_URL --cmd 'pnpm --filter @app/web build'",
+    "codegen": "turbo run codegen",
+    "deploy:backend": "pnpm --filter @app/backend deploy",
+    "dev": "turbo run dev --log-prefix=none",
+    "format": "biome format --write .",
+    "lint": "ultracite check",
+    "lint:fix": "ultracite fix",
+    "prepare": "effect-tsgo patch --typescript",
+    "setup:context": "./scripts/clone-context.sh",
+    "setup:local": "./scripts/env-setup.sh",
+    "setup:seed": "./scripts/seed.sh",
+    "start": "pnpm --filter @app/web start",
+    "test": "turbo run test",
+    "test:verbose": "VERBOSE=1 turbo run test",
+    "test:watch": "pnpm --filter @app/backend exec vitest",
+    "typecheck": "turbo run typecheck"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.10",
+    "@effect/tsgo": "^0.36.5",
+    "@effect/vitest": "catalog:",
+    "turbo": "^2.10.11",
+    "typescript": "catalog:",
+    "ultracite": "^7.10.6",
+    "vitest": "catalog:"
+  },
+  "packageManager": "pnpm@10.6.5",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "lightningcss"
+    ],
+    "peerDependencyRules": {
+      "allowedVersions": {
+        "zod": ">=3"
+      }
+    },
+    "ignoredBuiltDependencies": [
+      "@prisma/engines",
+      "core-js",
+      "msgpackr-extract",
+      "msw",
+      "prisma"
+    ]
+  }
+}
