@@ -1,42 +1,36 @@
-import { Db } from "@app/db/client";
-import { user } from "@app/db/schemas/schema";
-import { eq } from "drizzle-orm";
-import { Effect } from "effect";
+import { Effect, Option } from "effect";
 import { catchRest } from "../../catch";
+import { InternalError } from "../../errors";
 import { CurrentUser } from "../auth/auth.middleware";
-import { ProfileNotFoundError } from "./profile.errors";
 import { ProfileRpc } from "./profile.rpc";
+import { ProfileService } from "./profile.service";
+import { ProfileId } from "./profile.types";
 
 export const ProfileHandler = ProfileRpc.toLayer(
   Effect.gen(function* () {
-    const db = yield* Db;
+    const profileService = yield* ProfileService;
 
     return ProfileRpc.of({
       "profile.getProfile": Effect.fnUntraced(function* () {
         const currentUser = yield* CurrentUser;
-        const [row] = yield* db
-          .select({
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            image: user.image,
-            emailVerified: user.emailVerified,
-            createdAt: user.createdAt,
-          })
-          .from(user)
-          .where(eq(user.id, currentUser.id));
 
-        if (!row) {
-          return yield* new ProfileNotFoundError({ userId: currentUser.id });
-        }
+        const profile = yield* profileService
+          .getById({ id: ProfileId.make(currentUser.id) })
+          .pipe(
+            // An authenticated session without a row is an impossible state.
+            Effect.catchTag(
+              "@profile/ProfileNotFoundError",
+              () => new InternalError({})
+            )
+          );
 
         return {
-          id: row.id,
-          name: row.name,
-          email: row.email,
-          image: row.image,
-          emailVerified: row.emailVerified,
-          createdAt: String(row.createdAt),
+          id: profile.id,
+          name: profile.name,
+          email: profile.email,
+          image: Option.getOrNull(profile.image),
+          emailVerified: profile.emailVerified,
+          createdAt: profile.createdAt.toISOString(),
         };
       }, catchRest),
     });

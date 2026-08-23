@@ -46,12 +46,11 @@ Cross-package imports: `@app/*` workspace aliases, never relative paths.
 - **TypeScript 7** (native port) with `@effect/tsgo` — the Effect language service plugin for TS 7+. `@effect/language-service` supports only TS 5/6 and will refuse to patch. `pnpm prepare` runs `effect-tsgo patch`.
 - **pnpm catalogs** — shared versions in `pnpm-workspace.yaml`, packages use `"catalog:"`
 - **Biome only** — no ESLint/Prettier/oxlint. Run `pnpm lint:fix` before committing
+- **Much of the below is enforced, not advisory** — `@effect/tsgo` (81 Effect rules, via `tsc`) and Biome already catch `yield* Effect.fail(new X)`, `try/catch` inside `Effect.gen`, v3 APIs in a v4 project, barrel files, `any`, and `!` assertions. Read the gates before re-deriving a rule.
 - **Effect diagnostics come from `@effect/tsgo`** (the TS 7 successor to `@effect/language-service`) and surface through `tsc`, including warnings when v3 APIs are used against this v4 project. `pnpm prepare` runs `effect-tsgo patch --typescript`.
 - **Verify after changes** — `pnpm typecheck` + `pnpm lint`
-- **No `try/catch`/`throw`** — `Effect.try`, `Effect.catchTag`, typed errors (except `unsafe*` pure helpers)
 - **Error logging** — `Effect.logError('Failed to X', Cause.fail(error))`; Cause is the 2nd param. Same for `logFatal`
 - **Layer naming** — v4 convention: the primary layer is `layer`, variants get descriptive suffixes (`layerNoDeps`, `layerTest`). No `Live`/`Default` suffix. Composite app layers stay descriptive: `Base`, `Handlers`, `RpcLayer`
-- **No re-export barrels / `index.ts`** — import directly from the defining module
 - **No `React.` namespace** — named imports only: `import { useState, type ReactNode } from "react"`
 
 ## Domain Layout (`packages/server/src/domains/`)
@@ -103,7 +102,6 @@ domains/<name>/
 ## Errors
 
 - Every error is a `Schema.TaggedError` in `<name>.errors.ts`: tag **`@<domain>/Name`** (non-domain errors: `@<package>/Name`, e.g. `@server/UnauthorizedError`), **branded payload fields**, a `get message()`, an exported `is` guard, causes wrapped with `Schema.Defect()` (a **call** in v4). The prefix is mandatory — it's the runtime `_tag` identity and a bare tag can collide with third-party tags. Applies to **service & repository keys too** (`@<domain>/XService`, `…/XRepository`).
-- **Directly yieldable** — `yield* new MyError({ field })`, never `yield* Effect.fail(new MyError(...))`.
 - **One tag per concept — never split on data shape.** "Profile not found" is one tag whether looked up by id, slug, or email; carry identifiers as **optional** fields and let `get message()` adapt. Never mint `…ById`/`…BySlug` variants.
 - **One canonical owner per concept** server-wide — defined in one `<name>.errors.ts`, imported elsewhere; never re-mint per domain.
 - Genuinely different failures stay **distinct tags** so `catchTag` discrimination holds. Never use generic errors (`NotFoundError`, `InternalError`) for domain failures — those are last-resort fallbacks only.
@@ -164,9 +162,6 @@ domains/<name>/
 - **Collections:** `Effect.forEach` (`{ concurrency }` when independent) / `all` / `partition` for **effectful** iteration; `effect/Array` for pure data. Don't wrap pure aggregation in `Effect.forEach`.
 - **Multi-branch:** `Match.value(x).pipe(…, Match.exhaustive)` over a `switch`/`if-else` chain on a `_tag`/literal, when it reads cleaner.
 - **Spans:** handlers use `Effect.fnUntraced(function* () { … }, catchRest)` (RPC auto-attaches spans); service methods, middleware, and clients use `Effect.fn("<Domain>.<method>")()`.
-- **v4 `catch*` renames** — `Effect.catchAll` → `Effect.catch`, `catchAllCause` → `catchCause`, `catchAllDefect` → `catchDefect`, `catchSome` → `catchFilter`. `catchTag`/`catchTags`/`catchIf` are unchanged.
-- **`Cause` is flat in v4** — `cause.reasons` is an array of `Fail | Die | Interrupt`; there is no `Cause.isEmpty` (use `cause.reasons.length === 0`) and no `Sequential`/`Parallel`.
-- No `!` non-null assertions, no needless `let`.
 - **Taste override:** a clear ternary or single `if` guard beats `Option`/`Match` ceremony — prefer the version a reader understands fastest.
 
 ## Handlers & RPC (`<name>.handler.ts`, `<name>.rpc.ts`)
