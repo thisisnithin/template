@@ -8,3 +8,4 @@ dist
 *.tsbuildinfo
 .context
 .playwright-mcp
+docs
