@@ -36,6 +36,18 @@ describe("Profile Route", () => {
           })
         )
       );
+
+      scoped.effect("profile.updateName renames the profile", () =>
+        Effect.scoped(
+          Effect.gen(function* () {
+            const client = yield* RpcClient.make(AppRouter);
+            yield* client["profile.updateName"]({ name: "Renamed User" });
+
+            const profile = yield* client["profile.getProfile"]();
+            expect(profile.name).toBe("Renamed User");
+          })
+        )
+      );
     }
   );
 });

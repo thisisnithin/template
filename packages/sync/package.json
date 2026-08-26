@@ -1,5 +1,5 @@
 {
-  "name": "@app/server",
+  "name": "@app/sync",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -12,18 +12,16 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@app/auth": "workspace:*",
-    "@app/db": "workspace:*",
-    "@app/shared": "workspace:*",
-    "@app/sync": "workspace:^",
-    "@effect/opentelemetry": "catalog:",
-    "@effect/platform-node": "catalog:",
-    "@effect/sql-pg": "catalog:",
-    "dodopayments": "catalog:",
+    "@electric-sql/client": "catalog:",
+    "@tanstack/db": "catalog:",
+    "@tanstack/electric-db-collection": "catalog:",
+    "@tanstack/react-db": "catalog:",
     "drizzle-orm": "catalog:",
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "react": "catalog:"
   },
   "devDependencies": {
+    "@types/react": "^19.2.14",
     "typescript": "catalog:"
   }
 }

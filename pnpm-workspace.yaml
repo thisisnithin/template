@@ -9,7 +9,6 @@ catalogs:
     "@effect/platform-node": "4.0.0-rc.111"
     "@effect/sql-pg": "4.0.0-rc.111"
     "@effect/opentelemetry": "4.0.0-rc.111"
-    "@effect/atom-react": "4.0.0-rc.111"
     "@effect/vitest": "4.0.0-rc.111"
     # rc.4 crashes at import against effect rc.111; keep orm and kit in step.
     drizzle-orm: "1.0.0-rc.5-169397b"
@@ -31,3 +30,8 @@ catalogs:
     zod: "^4.4.3"
     vitest: "^4.1.11"
     "@testcontainers/postgresql": "^12.1.0"
+    # TanStack DB is pre-1.0 and moves weekly — pin exact, same as the Effect rc.
+    "@electric-sql/client": "1.5.26"
+    "@tanstack/db": "0.8.5"
+    "@tanstack/react-db": "0.3.5"
+    "@tanstack/electric-db-collection": "0.4.5"

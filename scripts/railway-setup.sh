@@ -44,6 +44,18 @@ echo "🐘 Adding Postgres 17..."
 railway add --database postgres
 echo "   ✓ Postgres provisioned"
 
+# ── Add Electric ─────────────────────────────────────────────────────────────
+# The sync service. It replicates from the same Postgres over logical decoding,
+# so Postgres must run with wal_level=logical (Railway's image already does).
+
+echo "⚡ Adding Electric..."
+railway add \
+  --service electric \
+  --image electricsql/electric:latest \
+  --variables 'DATABASE_URL=${{Postgres.DATABASE_URL}}?sslmode=disable' \
+  --variables 'ELECTRIC_INSECURE=true'
+echo "   ✓ Electric provisioned"
+
 # ── Link back to the app service ─────────────────────────────────────────────
 # After adding a database, the CLI context may switch. Re-link to the app service.
 
@@ -61,6 +73,7 @@ railway variable set \
   DATABASE_URL='${{Postgres.DATABASE_URL}}' \
   BETTER_AUTH_SECRET="$BETTER_AUTH_SECRET" \
   BETTER_AUTH_URL='https://${{RAILWAY_PUBLIC_DOMAIN}}' \
+  ELECTRIC_URL='http://${{electric.RAILWAY_PRIVATE_DOMAIN}}:3000' \
   NEXT_PUBLIC_APP_URL='https://${{RAILWAY_PUBLIC_DOMAIN}}' \
   GOOGLE_CLIENT_ID= \
   GOOGLE_CLIENT_SECRET= \
@@ -84,6 +97,7 @@ echo "✅ Railway project '$PROJECT_NAME' is ready!"
 echo ""
 echo "  Project:  $PROJECT_NAME"
 echo "  Database: Postgres (wired via \${{Postgres.DATABASE_URL}})"
-echo "  Env vars: DATABASE_URL, BETTER_AUTH_SECRET, BETTER_AUTH_URL, NEXT_PUBLIC_APP_URL"
+echo "  Sync:     Electric (private network only, reached via ELECTRIC_URL)"
+echo "  Env vars: DATABASE_URL, BETTER_AUTH_SECRET, BETTER_AUTH_URL, ELECTRIC_URL, NEXT_PUBLIC_APP_URL"
 echo ""
 echo "  Deploy: railway up --detach"

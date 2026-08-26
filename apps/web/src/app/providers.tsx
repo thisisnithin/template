@@ -1,6 +1,5 @@
 "use client";
 
-import { RegistryProvider } from "@effect/atom-react";
 import { ThemeProvider } from "next-themes";
 import { posthog } from "posthog-js";
 import { PostHogProvider } from "posthog-js/react";
@@ -25,11 +24,9 @@ export function Providers({ children }: { children: ReactNode }) {
 
   return (
     <ThemeProvider attribute="class" defaultTheme="light">
-      <RegistryProvider>
-        <PostHogProvider client={posthog}>
-          <ErrorBoundary>{children}</ErrorBoundary>
-        </PostHogProvider>
-      </RegistryProvider>
+      <PostHogProvider client={posthog}>
+        <ErrorBoundary>{children}</ErrorBoundary>
+      </PostHogProvider>
     </ThemeProvider>
   );
 }

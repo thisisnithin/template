@@ -1,4 +1,5 @@
 import { Db } from "@app/db/client";
+import { SyncMiddlewareLayer } from "@app/sync/server";
 import { NodeHttpServer } from "@effect/platform-node";
 import { PgClient } from "@effect/sql-pg";
 import { Effect, Layer, Redacted } from "effect";
@@ -57,6 +58,7 @@ const Handlers = Layer.mergeAll(HealthHandler, ProfileHandler);
 const RpcLayer = Layer.mergeAll(
   Handlers,
   MockAuthMiddlewareLayer,
+  SyncMiddlewareLayer,
   RpcSerialization.layerJson
 ).pipe(Layer.provide(Domain), Layer.provide(TestDb));
 

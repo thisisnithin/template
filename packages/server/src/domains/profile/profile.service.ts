@@ -9,6 +9,10 @@ export class ProfileService extends Context.Service<
     readonly getById: (p: {
       readonly id: ProfileId;
     }) => Effect.Effect<Profile, ProfileNotFoundError>;
+    readonly updateName: (p: {
+      readonly id: ProfileId;
+      readonly name: string;
+    }) => Effect.Effect<Profile, ProfileNotFoundError>;
   }
 >()("@profile/ProfileService") {
   static readonly layerNoDeps = Layer.effect(
@@ -31,7 +35,24 @@ export class ProfileService extends Context.Service<
         return profile.value;
       });
 
-      return ProfileService.of({ getById });
+      const updateName: (p: {
+        readonly id: ProfileId;
+        readonly name: string;
+      }) => Effect.Effect<Profile, ProfileNotFoundError> = Effect.fn(
+        "ProfileService.updateName"
+      )(function* ({ id, name }) {
+        const updated = yield* profileRepo
+          .updateName({ id, name })
+          .pipe(Effect.orDie);
+
+        if (Option.isNone(updated)) {
+          return yield* new ProfileNotFoundError({ userId: id });
+        }
+
+        return updated.value;
+      });
+
+      return ProfileService.of({ getById, updateName });
     })
   );
 

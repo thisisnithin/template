@@ -1,6 +1,10 @@
 services:
   postgres:
     image: postgres:17-alpine
+    # Electric replicates from the WAL, which needs logical decoding. The image
+    # defaults to `replica`, so Electric would fail to create its slot without
+    # this. Changing it requires a restart, not a rebuild.
+    command: postgres -c wal_level=logical
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -9,6 +13,18 @@ services:
       - "54321:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  electric:
+    image: electricsql/electric:latest
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/myapp?sslmode=disable
+      # Local only. Shapes are never exposed to the browser directly — the
+      # Next.js route at /api/sync/* authenticates and owns the where clause.
+      ELECTRIC_INSECURE: "true"
+    ports:
+      - "54322:3000"
+    depends_on:
+      - postgres
 
 volumes:
   postgres_data:

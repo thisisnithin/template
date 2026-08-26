@@ -1,5 +1,6 @@
 import { Db } from "@app/db/client";
 import { LoggerLayer } from "@app/shared/logger";
+import { SyncMiddlewareLayer } from "@app/sync/server";
 import { NodeHttpServer } from "@effect/platform-node";
 import { Layer } from "effect";
 import { HttpRouter } from "effect/unstable/http";
@@ -28,7 +29,7 @@ const Domain = ProfileService.layerNoDeps.pipe(
 
 const Handlers = Layer.mergeAll(HealthHandler, ProfileHandler);
 
-const Middleware = Layer.mergeAll(AuthMiddlewareLayer);
+const Middleware = Layer.mergeAll(AuthMiddlewareLayer, SyncMiddlewareLayer);
 
 const RpcLayer = Layer.mergeAll(
   Handlers,

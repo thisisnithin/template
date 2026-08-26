@@ -1,3 +1,4 @@
+import { syncedResponse } from "@app/sync/server";
 import { Effect, Option } from "effect";
 import { catchRest } from "../../catch";
 import { InternalError } from "../../errors";
@@ -32,6 +33,22 @@ export const ProfileHandler = ProfileRpc.toLayer(
           emailVerified: profile.emailVerified,
           createdAt: profile.createdAt.toISOString(),
         };
+      }, catchRest),
+
+      "profile.updateName": Effect.fnUntraced(function* ({ name }) {
+        const currentUser = yield* CurrentUser;
+
+        yield* profileService
+          .updateName({ id: ProfileId.make(currentUser.id), name })
+          .pipe(
+            // An authenticated session without a row is an impossible state.
+            Effect.catchTag(
+              "@profile/ProfileNotFoundError",
+              () => new InternalError({})
+            )
+          );
+
+        return yield* syncedResponse();
       }, catchRest),
     });
   })
