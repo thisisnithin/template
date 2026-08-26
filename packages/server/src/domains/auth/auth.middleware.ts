@@ -1,6 +1,6 @@
-import { Context } from "effect";
+import { Context, Schema } from "effect";
 import { RpcMiddleware } from "effect/unstable/rpc";
-import { UnauthorizedError } from "../../errors";
+import { InternalError, UnauthorizedError } from "../../errors";
 
 export class CurrentUser extends Context.Service<
   CurrentUser,
@@ -15,4 +15,6 @@ export class CurrentUser extends Context.Service<
 export class AuthMiddleware extends RpcMiddleware.Service<
   AuthMiddleware,
   { provides: CurrentUser }
->()("AuthMiddleware", { error: UnauthorizedError }) {}
+>()("AuthMiddleware", {
+  error: Schema.Union([UnauthorizedError, InternalError]),
+}) {}

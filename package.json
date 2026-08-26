@@ -17,6 +17,7 @@
     "setup:context": "./scripts/clone-context.sh",
     "setup:local": "./scripts/env-setup.sh",
     "setup:railway": "./scripts/railway-setup.sh",
+    "setup:seed": "./scripts/seed.sh",
     "start": "pnpm --filter @app/web start",
     "test": "vitest run",
     "test:verbose": "VERBOSE=1 vitest run",

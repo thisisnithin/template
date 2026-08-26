@@ -1,6 +1,6 @@
 import { Effect, Layer } from "effect";
 import type { Headers } from "effect/unstable/http";
-import { UnauthorizedError } from "../../errors";
+import { InternalError, UnauthorizedError } from "../../errors";
 import { AuthMiddleware, CurrentUser } from "./auth.middleware";
 import { BetterAuthClient } from "./better-auth.client";
 
@@ -14,12 +14,7 @@ export const AuthMiddlewareLayer = Layer.effect(
     ) {
       const session = yield* betterAuth
         .use((client) => client.api.getSession({ headers }))
-        .pipe(
-          Effect.mapError(
-            () =>
-              new UnauthorizedError({ message: "Session validation failed" })
-          )
-        );
+        .pipe(Effect.mapError(() => new InternalError({})));
 
       if (!session) {
         return yield* new UnauthorizedError({
